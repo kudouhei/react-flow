@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
+
 import Graph from '../src';
+// import Graph from '../dist/ReactGraph';
 
 class App extends PureComponent {
   constructor() {
@@ -26,11 +28,11 @@ class App extends PureComponent {
     console.log('graph loaded:', graphInstance);
   }
 
-  onMove() {
+  onChange() {
     if (!this.graphInstance) {
       return false;
     }
-    console.log('graph moved');
+    console.log('graph changed');
   }
 
   onFitView() {
@@ -54,7 +56,7 @@ class App extends PureComponent {
         onNodeClick={node => console.log(node)}
         style={{ width: '100%', height: '100%' }}
         onLoad={graphInstance => this.onLoad(graphInstance)}
-        onMove={() => this.onMove()}
+        onChange={(elements) => this.onChange(elements)}
       >
         <button
           type="button"
