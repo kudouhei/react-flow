@@ -1,9 +1,9 @@
 export const isEdge = element => element.data.source && element.data.target;
 
 export const separateElements = elements => ({
-  nodes: elements.filter(e => !isEdge(e)),
-  edges: elements.filter(e => isEdge(e))
-});
+  nodes: elements.filter(node => !isEdge(node)),
+  edges: elements.filter(node => isEdge(node))
+})
 
 export const getBoundingBox = (nodes) => {
   const bbox = nodes.reduce((res, node) => {

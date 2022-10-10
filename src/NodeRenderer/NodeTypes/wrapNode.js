@@ -67,7 +67,6 @@ export default NodeComponent => (props) => {
         ref={nodeElement}
         style={{ transform: `translate(${position.x}px,${position.y}px)` }}
         onClick={() => onNodeClick(data)}
-        // style={{ transform: `translate(${nodePosition.x}px,${nodePosition.y}px) scale(${k})` }}
       >
         <NodeComponent {...props} />
       </NodeWrapper>

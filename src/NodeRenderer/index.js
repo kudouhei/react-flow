@@ -16,7 +16,6 @@ const Nodes = styled.div`
 `;
 
 class NodeRenderer extends PureComponent {
-
   renderNode(d, onNodeClick) {
     const nodeType = d.data.type || 'default';
     const NodeComponent = this.props.nodeTypes[nodeType];

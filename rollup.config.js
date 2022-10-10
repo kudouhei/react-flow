@@ -1,4 +1,4 @@
-import resolve from 'rollup-plugin-node-resolve';
+import resolve from 'rollup-plugin-node-resolve'; // plugin configuration
 import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
 
@@ -27,24 +27,3 @@ export default [{
 		]
 	}
 ];
-
-
-
-// 	{
-// 		input: 'src/index.js',
-// 		external: ['react', 'prop-types', 'react-draggable', 'react-sizeme'],
-// 		output: [{
-// 				file: pkg.module,
-// 				format: 'es',
-// 				globals: {
-// 					react: 'React',
-// 					'react-draggable': 'ReactDraggable',
-// 					'react-sizeme': 'ReactSizeme'
-// 				}
-// 		}],
-// 		plugins: [
-// 			babel({
-// 				exclude: 'node_modules/**'
-// 			})
-// 		]
-// }

@@ -1,12 +1,12 @@
-import React, { createContext, useState } from 'react';
-import PropTypes from 'prop-types';
-import { zoomIdentity } from 'd3-zoom';
+import React, { createContext, useState } from "react";
+import PropTypes from "prop-types";
+import { zoomIdentity } from "d3-zoom";
 import { getBoundingBox } from '../graph-utils';
 
 export const GraphContext = createContext({});
 
 export const Provider = (props) => {
-  const {
+  const { 
     nodes: initNodes,
     edges: initEdges,
     onNodeClick,
@@ -65,7 +65,7 @@ export const Provider = (props) => {
     const translate = [(width / 2) - (boundsCenterX * k), (height / 2) - (boundsCenterY * k)];
     const initialTransform = zoomIdentity.translate(translate[0], translate[1]).scale(k);
 
-    d3ZoomState.selection.call(d3ZoomState.zoom.transform, initialTransform);
+    d3ZoomState.selection.call(d3ZoomState.zoom.transform, initialTransform); // *
   };
 
   const updateSize = (size) => {
