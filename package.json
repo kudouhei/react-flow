@@ -1,5 +1,5 @@
 {
-  "name": "react-graph",
+  "name": "react-flows",
   "version": "1.0.0",
   "module": "dist/ReactGraph.esm.js",
   "browser": "dist/ReactGraph.umd.js",
@@ -33,7 +33,9 @@
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -w -c",
-    "dev": "parcel example/index.html -d example/build"
+    "dev": "parcel example/index.html -d example/build",
+    "prepublish": "npm run build",
+    "postinstall": "npm run build"
   },
   "files": [
     "dist"
