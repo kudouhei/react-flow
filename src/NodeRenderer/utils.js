@@ -13,7 +13,7 @@ export function createNodeTypes(nodeTypes) {
     const specialTypes = Object.keys(nodeTypes)
         .filter(k => !['input', 'default', 'output'].includes(k))
         .reduce((res, key) => {
-            res[key] = wrapNode(nodeTypes[key]);
+            res[key] = wrapNode(nodeTypes[key]) || DefaultNode;
 
             return res;
         }, {});

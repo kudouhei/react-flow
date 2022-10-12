@@ -5,7 +5,11 @@ import { Consumer } from '../GraphContext';
 class NodeRenderer extends PureComponent {
   renderNode(d, onNodeClick) {
     const nodeType = d.data.type || 'default';
-    const NodeComponent = this.props.nodeTypes[nodeType];
+    if (!this.props.nodeTypes[nodeType]) {
+      console.warn(`No node type found for type "${nodeType}". Using type "default".`);
+    }
+
+    const NodeComponent = this.props.nodeTypes[nodeType] || this.props.nodeTypes.default;
 
     return (
       <NodeComponent
