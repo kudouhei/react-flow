@@ -2,11 +2,10 @@ import React, { PureComponent } from 'react';
 
 import Graph from '../src';
 // import Graph from '../dist/ReactGraph';
-import wrapNode from '../src/NodeRenderer/NodeTypes/wrapNode';
+// import wrapNode from '../src/NodeRenderer/NodeTypes/wrapNode';
 
-const SpecialNode = wrapNode(({ data }) =>
-  <div>I am Special!<br />{data.label}</div>
-);
+const SpecialNode = ({ data }) =>
+  <div>I am Special!<br />{data.label}</div>;
 
 class App extends PureComponent {
   constructor() {
