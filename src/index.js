@@ -13,9 +13,11 @@ class ReactGraph extends PureComponent {
       style, onNodeClick, children, onLoad, onMove, elements, onChange
     } = this.props;
 
+    const { nodes, edges } = separateElements(elements);
+
     return (
       <div style={style} className="react-graph">
-        <Provider {...separateElements(elements)} onNodeClick={onNodeClick}>
+        <Provider nodes={nodes} edges={edges} onNodeClick={onNodeClick}>
           <GraphView onLoad={onLoad} onMove={onMove} onChange={onChange} />
           {children}
         </Provider>
