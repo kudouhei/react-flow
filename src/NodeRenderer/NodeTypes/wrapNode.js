@@ -3,8 +3,9 @@ import ReactDraggable from 'react-draggable';
 
 import { GraphContext } from '../../GraphContext';
 import { updateNodeData, updateNodePos } from '../../state/actions';
-import { projectPosition } from '../../graph-utils';
+import cx from 'classnames';
 
+const isInputTarget = (e) => ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.nodeName);
 
 export default NodeComponent => (props) => {
   const { position, data, onNodeClick } = props;
@@ -12,6 +13,9 @@ export default NodeComponent => (props) => {
   const nodeElement = useRef(null);
   const graphContext = useContext(GraphContext);
   const [ x, y, k ] = graphContext.state.transform;
+
+  const selected = graphContext.state.selectedNodes.includes(id);
+  const nodeClasses = cx('react-graph__node', { selected });
 
   useEffect(() => {
     const bounds = nodeElement.current.getBoundingClientRect();
@@ -25,6 +29,9 @@ export default NodeComponent => (props) => {
     <ReactDraggable.DraggableCore
       grid={[1, 1]}
       onStart={(e) => {
+        if (isInputTarget(e)) {
+          return false;
+        }
         const unscaledPos = {
           x: e.clientX * (1 / k),
           y: e.clientY * (1 / k)
@@ -49,10 +56,15 @@ export default NodeComponent => (props) => {
       scale={k}
     >
       <div
-        className="react-graph__nodewrap"
+        className={nodeClasses}
         ref={nodeElement}
         style={{ transform: `translate(${position.x}px,${position.y}px)` }}
-        onClick={() => onNodeClick({ data, position })}
+        onClick={(e) => {
+          if (isInputTarget(e)) {
+            return false;
+          }
+          onNodeClick({ data, position });
+        }}
       >
         <NodeComponent {...props} />
       </div>

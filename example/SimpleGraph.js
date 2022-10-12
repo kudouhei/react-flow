@@ -4,9 +4,21 @@ import Graph from '../src';
 // import Graph from '../dist/ReactGraph';
 // import wrapNode from '../src/NodeRenderer/NodeTypes/wrapNode';
 
-const SpecialNode = ({ data, styles }) =>
-  <div style={{ background: '#FFCC00', padding: 10, borderRadius: 30, ...styles }}>I am Special!<br />{data.label}</div>
-;
+const SpecialNode = ({ data, styles }) => (
+  <div
+    style={{ background: '#FFCC00', padding: 10, borderRadius: 30, ...styles }}
+  >
+    I am <strong>special</strong>!<br />{data.label}
+    <input
+      style={{ margin: '10px 0' }}
+    />
+    <select>
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+    </select>
+  </div>
+);
 
 class App extends PureComponent {
   constructor() {
@@ -14,12 +26,12 @@ class App extends PureComponent {
 
     this.state = {
       elements: [
-        { data: { id: '1', label: 'Tests', type: 'input' }, position: { x: 0, y: 0 } },
+        { data: { id: '1', label: 'Tests', type: 'input' }, position: { x: 50, y: 50 } },
         { data: { id: '2', label: 'This is a node This is a node This is a node This is a node' }, position: { x: 100, y: 100 } },
         { data: { id: '3', label: 'This is a node' }, position: { x: 100, y: 200 }, style: { background: '#222', color: '#fff' } },
         { data: { id: '4', label: 'nody nodes', type: 'output' }, position: { x: 50, y: 300 } },
         { data: { id: '5', label: 'Another node', type: 'default' }, position: { x: 400, y: 300 } },
-        { data: { id: '6', label: 'A label', type: 'special' }, position: { x: 400, y: 400 } },
+        { data: { id: '6', label: 'I have inputs', type: 'special' }, position: { x: 400, y: 400 } },
         { data: { source: '1', target: '2' } },
         { data: { source: '2', target: '3' } },
         { data: { source: '3', target: '4' } },
@@ -33,6 +45,7 @@ class App extends PureComponent {
     this.graphInstance = graphInstance;
 
     console.log('graph loaded:', graphInstance);
+    this.graphInstance.fitView();
   }
 
   onChange() {
@@ -52,7 +65,9 @@ class App extends PureComponent {
   onAdd() {
     this.setState(prevState => ({
       ...prevState,
-      elements: prevState.elements.concat({ data: { id: (prevState.elements.length + 1), label: 'Added node'}, position: { x: 50, y: 50 } })
+      elements: prevState.elements.concat({ 
+        data: { id: (prevState.elements.length + 1), label: 'Added node'}, 
+        position: { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight }})
     }))
   }
 
@@ -68,14 +83,14 @@ class App extends PureComponent {
       >
         <button
           type="button"
-          style={{ position: 'absolute', right: '10px', bottom: '10px' }}
+          style={{ position: 'absolute', right: '10px', bottom: '10px', zIndex: 4 }}
           onClick={() => this.onFitView()}
         >
           fit
         </button>
         <button
           type="button"
-          style={{ position: 'absolute', bottom: '10px', left: '10px' }}
+          style={{ position: 'absolute', bottom: '10px', left: '10px', zIndex: 4 }}
           onClick={() => this.onAdd()}
         >
           add
