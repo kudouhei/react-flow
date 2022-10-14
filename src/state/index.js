@@ -18,14 +18,15 @@ export const initialState = {
   transform: [0, 0, 1],
   nodes: [],
   edges: [],
-  selectedNodes: [],
+  selectedNodeIds: [],
+  selectedNodesBbox: { x: 0, y: 0, width: 0, height: 0 },
 
   d3Zoom: null,
   d3Selection: null,
   d3Initialised: false,
 
   selectionActive: false,
-  selection: {}
+  selection: {},
 };
 
 export const reducer = (state, action) => {
@@ -79,8 +80,21 @@ export const reducer = (state, action) => {
     }
 
     case UPDATE_SELECTION: {
-      const selectedNodes = getNodesInside(state.nodes, action.payload.selection, state.transform).map(n => n.data.id);
-      return { ...state, ...action.payload, selectedNodes };
+      const selectedNodes = getNodesInside(state,nodes, action.payload.selection, state.transform);
+      const selectedNodesBbox = getBoundingBox(selectedNodes);
+      const selectedNodeIds = selectedNodes.map(n => n.data.id);
+
+      const bboxPos = {
+        x: ((selectedNodesBbox.x * state.transform[2]) + (state.transform[0] * (1 / 1.0))),
+        y: ((selectedNodesBbox.y * state.transform[2]) + (state.transform[1] * (1 / 1.0)))
+      };
+      let bboxWidth = (selectedNodesBbox.width * state.transform[2]) + 10;
+      let bboxHeight = (selectedNodesBbox.height * state.transform[2]) + 10;
+
+      bboxPos.x -= 5;
+      bboxPos.y -= 5;
+
+      return { ...state, ...action.payload, selectedNodeIds, selectedNodesBbox: { ...bboxPos, width: bboxWidth, height: bboxHeight } };
     }
 
     case SET_NODES:

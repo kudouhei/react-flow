@@ -9,13 +9,14 @@ const initialRect = {
   y: 0,
   width: 0,
   height: 0,
-  draw: false
+  draw: false,
+  fixed: false,
 };
 
 export default () => {
   const selectionPane = useRef(null);
   const [rect, setRect] = useState(initialRect);
-  const { dispatch } = useContext(GraphContext);
+  const { dispatch, state } = useContext(GraphContext);
 
   useEffect(() => {
     function onMouseDown(evt) {
@@ -54,8 +55,14 @@ export default () => {
     }
 
     function onMouseUp() {
-      setRect(initialRect);
-      dispatch(setSelection(false));
+      setRect((r) => {
+        const nextRect = {
+          ...r,
+          fixed: true,
+        };
+        dispatch(updateSelection(nextRect));
+        return nextRect;
+      })
     }
 
     selectionPane.current.addEventListener('mousedown', onMouseDown);
@@ -69,18 +76,21 @@ export default () => {
     };
   }, []);
 
+  const selectionRect = react.fixed ? state.selectedNodesBbox : rect;
+  console.log(selectionRect);
+
   return (
     <div
       className="react-graph__selectionpane"
       ref={selectionPane}
     >
-      {rect.draw && (
+      {rect.draw || rect.fixed && (
         <div
           className="react-graph__selection"
           style={{
-            width: rect.width,
-            height: rect.height,
-            transform: `translate(${rect.x}px, ${rect.y}px)`
+            width: selectionRect.width,
+            height: selectionRect.height,
+            transform: `translate(${selectionRect.x}px, ${selectionRect.y}px)`
           }}
         />
       )}

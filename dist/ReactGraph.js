@@ -195,28 +195,38 @@
   var isEdge = function isEdge(element) {
     return element.data.source && element.data.target;
   };
-  var separateElements = function separateElements(elements) {
-    return {
-      nodes: elements.filter(function (node) {
-        return !isEdge(node);
-      }),
-      edges: elements.filter(function (node) {
-        return isEdge(node);
-      })
-    };
+  var parseElements = function parseElements(e) {
+    return _objectSpread2(_objectSpread2({}, e), {}, {
+      __rg: {
+        position: e.position,
+        width: null,
+        height: null
+      }
+    });
+  };
+  var separateElements = function separateElements(res, element) {
+    res.edges = res.edges ? res.edges : [];
+    res.nodes = res.nodes ? res.nodes : [];
+    if (isEdge(element)) {
+      res.edges.push(element);
+    } else {
+      res.nodes.push(element);
+    }
+    return res;
   };
   var getBoundingBox = function getBoundingBox(nodes) {
     var bbox = nodes.reduce(function (res, node) {
-      var x2 = node.position.x + node.data.__width;
-      var y2 = node.position.y + node.data.__height;
-      if (node.position.x < res.minX) {
-        res.minX = node.position.x;
+      var position = node.__rg.position;
+      var x2 = position.x + node.__rg.width;
+      var y2 = position.y + node.__rg.height;
+      if (position.x < res.minX) {
+        res.minX = position.x;
       }
       if (x2 > res.maxX) {
         res.maxX = x2;
       }
-      if (node.position.y < res.minY) {
-        res.minY = node.position.y;
+      if (position.y < res.minY) {
+        res.minY = position.y;
       }
       if (y2 > res.maxY) {
         res.maxY = y2;
@@ -244,7 +254,11 @@
       };
       var bboxWidth = bbox.width * (1 / transform[2]);
       var bboxHeight = bbox.height * (1 / transform[2]);
-      return n.position.x > bboxPos.x && n.position.x + n.data.__width < bboxPos.x + bboxWidth && n.position.y > bboxPos.y && n.position.y + n.data.__height < bboxPos.y + bboxHeight;
+      var _n$__rg = n.__rg,
+        position = _n$__rg.position,
+        width = _n$__rg.width,
+        height = _n$__rg.height;
+      return position.x > bboxPos.x && position.x + width < bboxPos.x + bboxWidth && position.y > bboxPos.y && position.y + height < bboxPos.y + bboxHeight;
     });
   };
 
@@ -34671,7 +34685,7 @@
           return _objectSpread2(_objectSpread2({}, state), {}, {
             nodes: state.nodes.map(function (n) {
               if (n.data.id === action.payload.id) {
-                n.data = _objectSpread2(_objectSpread2({}, n.data), action.payload.data);
+                n.__rg = _objectSpread2(_objectSpread2({}, n.__rg), action.payload.data);
               }
               return n;
             })
@@ -34682,7 +34696,9 @@
           return _objectSpread2(_objectSpread2({}, state), {}, {
             nodes: state.nodes.map(function (n) {
               if (n.data.id === action.payload.id) {
-                n.position = action.payload.pos;
+                n.__rg = _objectSpread2(_objectSpread2({}, n.__rg), {}, {
+                  position: action.payload.pos
+                });
               }
               return n;
             })
@@ -34808,7 +34824,9 @@
           return n.data.id === propNode.data.id;
         });
         if (existingNode) {
-          return Object.assign(propNode, existingNode);
+          return _objectSpread2(_objectSpread2({}, existingNode), {}, {
+            data: _objectSpread2(_objectSpread2({}, existingNode.data), propNode.data)
+          });
         }
         return propNode;
       });
@@ -34855,13 +34873,10 @@
           console.warn("No node type found for type \"".concat(nodeType, "\". Using type \"default\"."));
         }
         var NodeComponent = this.props.nodeTypes[nodeType] || this.props.nodeTypes["default"];
-        return /*#__PURE__*/React__default.createElement(NodeComponent, {
+        return /*#__PURE__*/React__default.createElement(NodeComponent, _extends({
           key: d.data.id,
-          position: d.position,
-          data: d.data,
-          style: d.style || {},
           onNodeClick: onNodeClick
-        });
+        }, d));
       }
     }, {
       key: "render",
@@ -34887,10 +34902,10 @@
   var Edge = (function (props) {
     var targetNode = props.targetNode,
       sourceNode = props.sourceNode;
-    var sourceX = sourceNode.position.x + sourceNode.data.__width / 2;
-    var sourceY = sourceNode.position.y + sourceNode.data.__height;
-    var targetX = targetNode.position.x + targetNode.data.__width / 2;
-    var targetY = targetNode.position.y;
+    var sourceX = sourceNode.__rg.position.x + sourceNode.__rg.width / 2;
+    var sourceY = sourceNode.__rg.position.y + sourceNode.__rg.height;
+    var targetX = targetNode.__rg.position.x + targetNode.__rg.width / 2;
+    var targetY = targetNode.__rg.position.y;
     return /*#__PURE__*/React__default.createElement("path", {
       className: "react-graph__edge",
       d: "M ".concat(sourceX, ",").concat(sourceY, "L ").concat(targetX, ",").concat(targetY)
@@ -37451,12 +37466,20 @@
   };
   var wrapNode = (function (NodeComponent) {
     return function (props) {
-      var position = props.position,
-        data = props.data,
-        onNodeClick = props.onNodeClick;
-      var id = data.id;
       var nodeElement = React.useRef(null);
       var graphContext = React.useContext(GraphContext);
+      var _useState = React.useState({
+          x: 0,
+          y: 0
+        }),
+        _useState2 = _slicedToArray(_useState, 2),
+        offset = _useState2[0],
+        setOffset = _useState2[1];
+      var data = props.data,
+        onNodeClick = props.onNodeClick,
+        __rg = props.__rg;
+      var position = __rg.position;
+      var id = data.id;
       var _graphContext$state$t = _slicedToArray(graphContext.state.transform, 3),
         x = _graphContext$state$t[0],
         y = _graphContext$state$t[1],
@@ -37470,8 +37493,8 @@
         var unscaledWidth = Math.round(bounds.width * (1 / k));
         var unscaledHeight = Math.round(bounds.height * (1 / k));
         graphContext.dispatch(updateNodeData(id, {
-          __width: unscaledWidth,
-          __height: unscaledHeight
+          width: unscaledWidth,
+          height: unscaledHeight
         }));
       }, []);
       return /*#__PURE__*/React__default.createElement(reactDraggable.DraggableCore, {
@@ -37486,23 +37509,19 @@
           };
           var offsetX = unscaledPos.x - position.x - x;
           var offsetY = unscaledPos.y - position.y - y;
-          graphContext.dispatch(updateNodeData(id, {
-            __offsetX: offsetX,
-            __offsetY: offsetY
-          }));
+          setOffset({
+            x: offsetX,
+            y: offsetY
+          });
         },
         onDrag: function onDrag(e, d) {
-          var _data$__offsetX = data.__offsetX,
-            __offsetX = _data$__offsetX === void 0 ? 0 : _data$__offsetX,
-            _data$__offsetY = data.__offsetY,
-            __offsetY = _data$__offsetY === void 0 ? 0 : _data$__offsetY;
           var unscaledPos = {
             x: e.clientX * (1 / k),
             y: e.clientY * (1 / k)
           };
           graphContext.dispatch(updateNodePos(id, {
-            x: unscaledPos.x - x - __offsetX,
-            y: unscaledPos.y - y - __offsetY
+            x: unscaledPos.x - x - offset.x,
+            y: unscaledPos.y - y - offset.y
           }));
         },
         scale: k
@@ -37591,9 +37610,9 @@
           onMove = _this$props.onMove,
           elements = _this$props.elements,
           onChange = _this$props.onChange;
-        var _separateElements = separateElements(elements),
-          nodes = _separateElements.nodes,
-          edges = _separateElements.edges;
+        var _elements$map$reduce = elements.map(parseElements).reduce(separateElements, {}),
+          nodes = _elements$map$reduce.nodes,
+          edges = _elements$map$reduce.edges;
         return /*#__PURE__*/React__default.createElement("div", {
           style: style,
           className: "react-graph"
