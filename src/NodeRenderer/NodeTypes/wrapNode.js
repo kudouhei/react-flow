@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useContext } from 'react';
+import React, { useEffect, useRef, useContext, useState } from 'react';
 import ReactDraggable from 'react-draggable';
 
 import { GraphContext } from '../../GraphContext';
@@ -8,10 +8,14 @@ import cx from 'classnames';
 const isInputTarget = (e) => ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.nodeName);
 
 export default NodeComponent => (props) => {
-  const { position, data, onNodeClick } = props;
-  const { id } = data;
   const nodeElement = useRef(null);
   const graphContext = useContext(GraphContext);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  const { data, onNodeClick, __rg } = props;
+  const { position } = __rg;
+  const { id } = data;
+
   const [ x, y, k ] = graphContext.state.transform;
 
   const selected = graphContext.state.selectedNodes.includes(id);
@@ -22,7 +26,7 @@ export default NodeComponent => (props) => {
     const unscaledWidth = Math.round(bounds.width * (1 / k));
     const unscaledHeight = Math.round(bounds.height * (1 / k));
 
-    graphContext.dispatch(updateNodeData(id, { __width: unscaledWidth, __height: unscaledHeight }));
+    graphContext.dispatch(updateNodeData(id, { width: unscaledWidth, height: unscaledHeight }));
   }, []);
 
   return (
@@ -39,18 +43,17 @@ export default NodeComponent => (props) => {
         const offsetX = unscaledPos.x - position.x - x;
         const offsetY = unscaledPos.y - position.y - y;
 
-        graphContext.dispatch(updateNodeData(id, { __offsetX: offsetX, __offsetY: offsetY }));
+        setOffset({ x: offsetX, y: offsetY });
       }}
       onDrag={(e, d) => {
-        const { __offsetX = 0, __offsetY = 0 } = data;
         const unscaledPos = {
           x: e.clientX * (1 / k),
           y: e.clientY * (1 / k)
         }
 
         graphContext.dispatch(updateNodePos(id, {
-          x: unscaledPos.x - x - __offsetX,
-          y: unscaledPos.y - y - __offsetY
+          x: unscaledPos.x - x - offset.x,
+          y: unscaledPos.y - y - offset.y
         }));
       }}
       scale={k}
