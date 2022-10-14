@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GraphContext } from '../GraphContext';
-import { updateSelection, setSelection } from '../state/actions';
+import { updateSelection, setSelection, setNodesSelection } from '../state/actions';
 
 const initialRect = {
   startX: 0,
@@ -10,22 +10,32 @@ const initialRect = {
   width: 0,
   height: 0,
   draw: false,
-  fixed: false,
 };
+
+function getMousePosition(evt) {
+  const containerBounds = document.querySelector('.react-graph').getBoundingClientRect();
+
+  return {
+    x: evt.clientX - containerBounds.left,
+    y: evt.clientY - containerBounds.top
+  }
+}
 
 export default () => {
   const selectionPane = useRef(null);
   const [rect, setRect] = useState(initialRect);
-  const { dispatch, state } = useContext(GraphContext);
+  const { dispatch } = useContext(GraphContext);
 
   useEffect(() => {
     function onMouseDown(evt) {
+      const mousePos = getMousePosition(evt);
+
       setRect((r) => ({
         ...r,
-        startX: evt.clientX,
-        startY: evt.clientY,
-        x: evt.clientX,
-        y: evt.clientY,
+        startX: mousePos.x,
+        startY: mousePos.y,
+        x: mousePos.x,
+        y: mousePos.y,
         draw: true
       }));
       dispatch(setSelection(true));
@@ -33,22 +43,24 @@ export default () => {
 
     function onMouseMove(evt) {
       setRect((r) => {
-        const negativeX = evt.clientX < r.startX;
-        const negativeY = evt.clientY < r.startY;
-
         if (!r.draw) {
           return r;
         }
 
+        const mousePos = getMousePosition(evt);
+        const negativeX = mousePos.x < r.startX;
+        const negativeY = mousePos.y < r.startY;
+
         const nextRect = {
           ...r,
-          x: negativeX ? evt.clientX : r.x,
-          y: negativeY ? evt.clientY : r.y,
-          width: negativeX ? r.startX - evt.clientX : evt.clientX - r.startX,
-          height: negativeY ? r.startY - evt.clientY : evt.clientY - r.startY,
+          x: negativeX ? mousePos.x : r.x,
+          y: negativeY ? mousePos.y : r.y,
+          width: negativeX ? r.startX - mousePos.x : mousePos.x - r.startX,
+          height: negativeY ? r.startY - mousePos.y : mousePos.y - r.startY,
         };
 
-        dispatch(updateSelection(nextRect));
+        dispatch(setNodesSelection({ isActive: true, selection: nextRect }));
+        dispatch(setSelection(false));
 
         return nextRect;
       })
@@ -76,8 +88,6 @@ export default () => {
     };
   }, []);
 
-  const selectionRect = react.fixed ? state.selectedNodesBbox : rect;
-  console.log(selectionRect);
 
   return (
     <div
@@ -88,9 +98,9 @@ export default () => {
         <div
           className="react-graph__selection"
           style={{
-            width: selectionRect.width,
-            height: selectionRect.height,
-            transform: `translate(${selectionRect.x}px, ${selectionRect.y}px)`
+            width: rect.width,
+            height: rect.height,
+            transform: `translate(${rect.x}px, ${rect.y}px)`
           }}
         />
       )}

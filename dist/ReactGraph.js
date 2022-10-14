@@ -34671,7 +34671,13 @@
     transform: [0, 0, 1],
     nodes: [],
     edges: [],
-    selectedNodes: [],
+    selectedNodeIds: [],
+    selectedNodesBbox: {
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0
+    },
     d3Zoom: null,
     d3Selection: null,
     d3Initialised: false,
@@ -34717,11 +34723,25 @@
         }
       case UPDATE_SELECTION:
         {
-          var selectedNodes = getNodesInside(state.nodes, action.payload.selection, state.transform).map(function (n) {
+          var selectedNodes = getNodesInside(state, nodes, action.payload.selection, state.transform);
+          var selectedNodesBbox = getBoundingBox(selectedNodes);
+          var selectedNodeIds = selectedNodes.map(function (n) {
             return n.data.id;
           });
+          var bboxPos = {
+            x: selectedNodesBbox.x * state.transform[2] + state.transform[0] * (1 / 1.0),
+            y: selectedNodesBbox.y * state.transform[2] + state.transform[1] * (1 / 1.0)
+          };
+          var bboxWidth = selectedNodesBbox.width * state.transform[2] + 10;
+          var bboxHeight = selectedNodesBbox.height * state.transform[2] + 10;
+          bboxPos.x -= 5;
+          bboxPos.y -= 5;
           return _objectSpread2(_objectSpread2(_objectSpread2({}, state), action.payload), {}, {
-            selectedNodes: selectedNodes
+            selectedNodeIds: selectedNodeIds,
+            selectedNodesBbox: _objectSpread2(_objectSpread2({}, bboxPos), {}, {
+              width: bboxWidth,
+              height: bboxHeight
+            })
           });
         }
       case SET_NODES:
@@ -34971,7 +34991,8 @@
     y: 0,
     width: 0,
     height: 0,
-    draw: false
+    draw: false,
+    fixed: false
   };
   var Selection$2 = (function () {
     var selectionPane = React.useRef(null);
@@ -34980,7 +35001,8 @@
       rect = _useState2[0],
       setRect = _useState2[1];
     var _useContext = useContext(GraphContext),
-      dispatch = _useContext.dispatch;
+      dispatch = _useContext.dispatch,
+      state = _useContext.state;
     React.useEffect(function () {
       function onMouseDown(evt) {
         setRect(function (r) {
@@ -35012,8 +35034,13 @@
         });
       }
       function onMouseUp() {
-        setRect(initialRect);
-        dispatch(setSelection(false));
+        setRect(function (r) {
+          var nextRect = _objectSpread2(_objectSpread2({}, r), {}, {
+            fixed: true
+          });
+          dispatch(updateSelection(nextRect));
+          return nextRect;
+        });
       }
       selectionPane.current.addEventListener('mousedown', onMouseDown);
       selectionPane.current.addEventListener('mousemove', onMouseMove);
@@ -35024,15 +35051,17 @@
         selectionPane.current.removeEventListener('mouseup', onMouseUp);
       };
     }, []);
+    var selectionRect = react.fixed ? state.selectedNodesBbox : rect;
+    console.log(selectionRect);
     return /*#__PURE__*/React__default.createElement("div", {
       className: "react-graph__selectionpane",
       ref: selectionPane
-    }, rect.draw && /*#__PURE__*/React__default.createElement("div", {
+    }, rect.draw || rect.fixed && /*#__PURE__*/React__default.createElement("div", {
       className: "react-graph__selection",
       style: {
-        width: rect.width,
-        height: rect.height,
-        transform: "translate(".concat(rect.x, "px, ").concat(rect.y, "px)")
+        width: selectionRect.width,
+        height: selectionRect.height,
+        transform: "translate(".concat(selectionRect.x, "px, ").concat(selectionRect.y, "px)")
       }
     }));
   });
@@ -35121,7 +35150,7 @@
     }), /*#__PURE__*/React__default.createElement(EdgeRenderer, {
       width: graphContext.state.width,
       height: graphContext.state.height
-    }), shiftPressed && /*#__PURE__*/React__default.createElement(Selection$2, null), /*#__PURE__*/React__default.createElement("div", {
+    }), shiftPressed || graphContext.state.selectedNodeIds.length && /*#__PURE__*/React__default.createElement(Selection$2, null), /*#__PURE__*/React__default.createElement("div", {
       className: "react-graph__zoompane",
       ref: zoomPane
     }));
@@ -37484,7 +37513,7 @@
         x = _graphContext$state$t[0],
         y = _graphContext$state$t[1],
         k = _graphContext$state$t[2];
-      var selected = graphContext.state.selectedNodes.includes(id);
+      var selected = graphContext.state.selectedNodeIds.includes(id);
       var nodeClasses = classnames('react-graph__node', {
         selected: selected
       });

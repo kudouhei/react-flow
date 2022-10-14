@@ -6,7 +6,8 @@ import ReactSizeMe from "react-sizeme";
 import { GraphContext } from "../GraphContext";
 import NodeRenderer from "../NodeRenderer";
 import EdgeRenderer from "../EdgeRenderer";
-import Selection from "../Selection";
+import UserSelection from "../UserSelection";
+import NodesSelection from '../NodesSelection';
 
 import { updateTransform, updateSize, initD3, fitView } from "../state/actions";
 import { useKeyPress } from "../hooks";
@@ -83,7 +84,8 @@ const GraphView = (props) => {
         width={graphContext.state.width}
         height={graphContext.state.height}
       />
-      {shiftPressed || graphContext.state.selectedNodeIds.length && <Selection />}
+      { shiftPressed && <UserSelection /> }
+      {graphContext.state.nodesSelectionActive && <NodesSelection />}
       <div className="react-graph__zoompane" ref={zoomPane} />
     </div>
   );
