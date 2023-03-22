@@ -2,23 +2,23 @@ import React, { useEffect, useRef, useContext, useState } from 'react';
 import ReactDraggable from 'react-draggable';
 
 import { GraphContext } from '../../GraphContext';
-import { updateNodeData, updateNodePos } from '../../state/actions';
+import { updateNodeData, updateNodePos, setSelectedNodesIds } from '../../state/actions';
 import cx from 'classnames';
 
 const isInputTarget = (e) => ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.nodeName);
 
 export default NodeComponent => (props) => {
   const nodeElement = useRef(null);
-  const graphContext = useContext(GraphContext);
+  const { state, dispatch } = useContext(GraphContext);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   const { data, onNodeClick, __rg } = props;
   const { position } = __rg;
   const { id } = data;
 
-  const [ x, y, k ] = graphContext.state.transform;
+  const [ x, y, k ] = state.transform;
 
-  const selected = graphContext.state.selectedNodeIds.includes(id);
+  const selected = state.selectedNodeIds.includes(id);
   const nodeClasses = cx('react-graph__node', { selected });
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export default NodeComponent => (props) => {
     const unscaledWidth = Math.round(bounds.width * (1 / k));
     const unscaledHeight = Math.round(bounds.height * (1 / k));
 
-    graphContext.dispatch(updateNodeData(id, { width: unscaledWidth, height: unscaledHeight }));
+    dispatch(updateNodeData(id, { width: unscaledWidth, height: unscaledHeight }));
   }, []);
 
   return (
@@ -51,7 +51,7 @@ export default NodeComponent => (props) => {
           y: e.clientY * (1 / k)
         }
 
-        graphContext.dispatch(updateNodePos(id, {
+        dispatch(updateNodePos(id, {
           x: unscaledPos.x - x - offset.x,
           y: unscaledPos.y - y - offset.y
         }));
@@ -66,6 +66,7 @@ export default NodeComponent => (props) => {
           if (isInputTarget(e)) {
             return false;
           }
+          dispatch(setSelectedNodesIds(id))
           onNodeClick({ data, position });
         }}
       >

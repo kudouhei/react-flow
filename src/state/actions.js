@@ -1,7 +1,8 @@
 import {
     UPDATE_TRANSFORM, UPDATE_SIZE, SET_NODES, SET_EDGES,
     UPDATE_NODE_DATA, UPDATE_NODE_POS, INIT_D3, FIT_VIEW,
-    UPDATE_SELECTION, SET_SELECTION, SET_NODES_SELECTION
+    UPDATE_SELECTION, SET_SELECTION, SET_NODES_SELECTION,
+    SET_SELECTED_NODES_IDS, REMOVE_NODES
   } from './index';
   
   export const updateTransform = (transform) => {
@@ -60,6 +61,18 @@ import {
   export const setSelection = (isActive) => {
     return { type: SET_SELECTION, payload: { selectionActive: isActive } };
   };
+
+  export const setSelectedNodesIds = (ids) => {
+    const idArray = Array.isArray(ids) ? ids : [ids];
+
+    return { type: SET_SELECTED_NODES_IDS, payload: { selectedNodeIds: idArray } };
+  }
+
+  export const removeNodes = (ids) => {
+    const idArray = Array.isArray(ids) ? ids : [ids];
+
+    return { type: REMOVE_NODES, payload: {ids: idArray} };
+  }
   
   export const updateSelection = (selection) => {
     return {
