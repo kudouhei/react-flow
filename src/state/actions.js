@@ -65,7 +65,7 @@ import {
   export const setSelectedNodesIds = (ids) => {
     const idArray = Array.isArray(ids) ? ids : [ids];
 
-    return { type: SET_SELECTED_NODES_IDS, payload: { selectedNodeIds: idArray } };
+    return { type: SET_SELECTED_NODES_IDS, payload: { selectedNodeIds: idArray, nodesSelectionActive: false } };
   }
 
   export const removeNodes = (ids) => {
