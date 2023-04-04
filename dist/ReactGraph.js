@@ -148,8 +148,17 @@
   function _slicedToArray(arr, i) {
     return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
   }
+  function _toConsumableArray(arr) {
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+  }
+  function _arrayWithoutHoles(arr) {
+    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+  }
   function _arrayWithHoles(arr) {
     if (Array.isArray(arr)) return arr;
+  }
+  function _iterableToArray(iter) {
+    if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
   }
   function _iterableToArrayLimit(arr, i) {
     var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
@@ -188,12 +197,15 @@
     for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
     return arr2;
   }
+  function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
   function _nonIterableRest() {
     throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
   var isEdge = function isEdge(element) {
-    return element.data.source && element.data.target;
+    return element.data && element.data.source && element.data.target;
   };
   var parseElements = function parseElements(e) {
     return _objectSpread2(_objectSpread2({}, e), {}, {
@@ -34667,7 +34679,7 @@
   var UPDATE_SELECTION = 'UPDATE_SELECTION';
   var SET_SELECTION = 'SET_SELECTION';
   var SET_NODES_SELECTION = 'SET_NODES_SELECTION';
-  var SET_SELECTED_NODES_IDS = 'SET_SELECTED_NODES_IDS';
+  var SET_SELECTED_ELEMENTS = 'SET_SELECTED_ELEMENTS';
   var REMOVE_NODES = 'REMOVE_NODES';
   var initialState = {
     width: 0,
@@ -34675,7 +34687,7 @@
     transform: [0, 0, 1],
     nodes: [],
     edges: [],
-    selectedNodeIds: [],
+    selectedElements: [],
     selectedNodesBbox: {
       x: 0,
       y: 0,
@@ -34732,8 +34744,11 @@
           var selectedNodeIds = selectedNodes.map(function (n) {
             return n.data.id;
           });
+          var selectedEdges = state.edges.filter(function (e) {
+            return selectedNodeIds.includes(e.data.source) || selectedNodeIds.includes(e.data.target);
+          });
           return _objectSpread2(_objectSpread2(_objectSpread2({}, state), action.payload), {}, {
-            selectedNodeIds: selectedNodeIds
+            selectedElements: [].concat(_toConsumableArray(selectedNodes), _toConsumableArray(selectedEdges))
           });
         }
       case SET_NODES_SELECTION:
@@ -34741,7 +34756,7 @@
           if (!action.payload.nodesSelectionActive) {
             return _objectSpread2(_objectSpread2({}, state), {}, {
               nodesSelectionActive: false,
-              selectedNodeIds: []
+              selectedElements: []
             });
           }
           var _selectedNodes = getNodesInside(state.nodes, action.payload.selection, state.transform);
@@ -34770,7 +34785,7 @@
       case INIT_D3:
       case UPDATE_SIZE:
       case SET_SELECTION:
-      case SET_SELECTED_NODES_IDS:
+      case SET_SELECTED_ELEMENTS:
         return _objectSpread2(_objectSpread2({}, state), action.payload);
       default:
         return state;
@@ -34842,12 +34857,12 @@
       }
     };
   };
-  var setSelectedNodesIds = function setSelectedNodesIds(ids) {
-    var idArray = Array.isArray(ids) ? ids : [ids];
+  var setSelectedElements = function setSelectedElements(elements) {
+    var elementsArray = Array.isArray(elements) ? elements : [elements];
     return {
-      type: SET_SELECTED_NODES_IDS,
+      type: SET_SELECTED_ELEMENTS,
       payload: {
-        selectedNodeIds: idArray,
+        selectedElements: elementsArray,
         nodesSelectionActive: false
       }
     };
@@ -35232,8 +35247,8 @@
       dispatch = _useContext.dispatch;
     var removePressed = useKeyPress('Backspace');
     React.useEffect(function () {
-      if (removePressed && state.selectedNodeIds.length) {
-        props.onNodeRemove(state.selectedNodeIds);
+      if (removePressed && state.selectedElements.length) {
+        props.onElementsRemove(state.selectedElements);
         dispatch(setNodesSelection({
           isActive: false
         }));
@@ -37601,7 +37616,11 @@
         x = _state$transform[0],
         y = _state$transform[1],
         k = _state$transform[2];
-      var selected = state.selectedNodeIds.includes(id);
+      var selected = state.selectedElements.filter(function (e) {
+        return !isEdge(e);
+      }).map(function (e) {
+        return e.data.id;
+      }).includes(id);
       var nodeClasses = classnames('react-graph__node', {
         selected: selected
       });
@@ -37654,7 +37673,7 @@
           if (isInputTarget(e)) {
             return false;
           }
-          dispatch(setSelectedNodesIds(id));
+          dispatch(setSelectedElements(id));
           _onClick({
             data: data,
             position: position
@@ -37701,12 +37720,11 @@
         dispatch = _useContext.dispatch;
       var data = props.data,
         _onClick = props.onClick;
-      var id = data.id;
-      var _state$transform = _slicedToArray(state.transform, 3),
-        x = _state$transform[0],
-        y = _state$transform[1],
-        k = _state$transform[2];
-      var selected = state.setSelectedNodesIds.includes(id);
+      var selected = state.selectedElements.filter(function (e) {
+        return isEdge(e);
+      }).find(function (e) {
+        return e.data.source === data.source && e.data.target === data.target;
+      });
       var edgeClasses = classnames('react-graph__edge', {
         selected: selected
       });
@@ -37716,6 +37734,9 @@
           if (isInputTarget$1(e)) {
             return false;
           }
+          dispatch(setSelectedElements({
+            data: data
+          }));
           _onClick({
             data: data
           });
@@ -37764,7 +37785,7 @@
     }
   }
 
-  var css_248z = ".react-graph {\n  width: 100%;\n  height: 100%;\n  position: relative;\n  overflow: hidden;\n}\n\n.react-graph__renderer {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n}\n\n.react-graph__zoompane {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1;\n}\n\n.react-graph__selectionpane {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 2;\n}\n\n.react-graph__selection {\n  position: absolute;\n  top: 0;\n  left: 0;\n  background: rgba(0, 89, 220, 0.08);\n  border: 1px dotted rgba(0, 89, 220, 0.8);\n}\n\n.react-graph__edges {\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n  z-index: 2;\n}\n\n.react-graph__edge {\n  fill: none;\n  stroke: #333;\n  stroke-width: 2;\n  pointer-events: all;\n}\n\n.react-graph__nodes {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  z-index: 2;\n  pointer-events: none;\n  transform-origin: 0 0;\n}\n\n.react-graph__node {\n  position: absolute;\n  color: #222;\n  font-family: sans-serif;\n  font-size: 12px;\n  text-align: center;\n  cursor: grab;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n          user-select: none;\n  pointer-events: all;\n  transform-origin: 0 0;\n}\n\n.react-graph__node:hover > * {\n  box-shadow: 0 1px 5px 2px rgba(0, 0, 0, 0.08);\n}\n\n.react-graph__node.selected > * {\n  box-shadow: 0 0 0 2px #000;\n}\n\n.react-graph__handle {\n  position: absolute;\n  width: 12px;\n  height: 12px;\n  transform: translate(-50%, -50%);\n  background: #222;\n  left: 50%;\n  border-radius: 50%;\n}\n\n.react-graph__nodesselection {\n  z-index: 3;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  transform-origin: left top;\n  pointer-events: none;\n}\n\n.react-graph__nodesselection-rect {\n  position: absolute;\n  background: rgba(0, 89, 220, 0.08);\n  border: 1px dotted rgba(0, 89, 220, 0.8);\n}";
+  var css_248z = ".react-graph {\n  width: 100%;\n  height: 100%;\n  position: relative;\n  overflow: hidden;\n}\n\n.react-graph__renderer {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n}\n\n.react-graph__zoompane {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1;\n}\n\n.react-graph__selectionpane {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 2;\n}\n\n.react-graph__selection {\n  position: absolute;\n  top: 0;\n  left: 0;\n  background: rgba(0, 89, 220, 0.08);\n  border: 1px dotted rgba(0, 89, 220, 0.8);\n}\n\n.react-graph__edges {\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n  z-index: 2;\n}\n\n.react-graph__edge {\n  fill: none;\n  stroke: #333;\n  stroke-width: 2;\n  pointer-events: all;\n}\n\n.react-graph__edge.selected {\n  stroke: #ff5050;\n}\n\n.react-graph__nodes {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  z-index: 2;\n  pointer-events: none;\n  transform-origin: 0 0;\n}\n\n.react-graph__node {\n  position: absolute;\n  color: #222;\n  font-family: sans-serif;\n  font-size: 12px;\n  text-align: center;\n  cursor: grab;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n          user-select: none;\n  pointer-events: all;\n  transform-origin: 0 0;\n}\n\n.react-graph__node:hover > * {\n  box-shadow: 0 1px 5px 2px rgba(0, 0, 0, 0.08);\n}\n\n.react-graph__node.selected > * {\n  box-shadow: 0 0 0 2px #000;\n}\n\n.react-graph__handle {\n  position: absolute;\n  width: 12px;\n  height: 12px;\n  transform: translate(-50%, -50%);\n  background: #222;\n  left: 50%;\n  border-radius: 50%;\n}\n\n.react-graph__nodesselection {\n  z-index: 3;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  transform-origin: left top;\n  pointer-events: none;\n}\n\n.react-graph__nodesselection-rect {\n  position: absolute;\n  background: rgba(0, 89, 220, 0.08);\n  border: 1px dotted rgba(0, 89, 220, 0.8);\n}";
   styleInject(css_248z);
 
   var ReactGraph = /*#__PURE__*/function (_PureComponent) {
@@ -37789,7 +37810,7 @@
           onMove = _this$props.onMove,
           elements = _this$props.elements,
           onChange = _this$props.onChange,
-          onNodeRemove = _this$props.onNodeRemove;
+          onElementsRemove = _this$props.onElementsRemove;
         var _elements$map$reduce = elements.map(parseElements).reduce(separateElements, {}),
           nodes = _elements$map$reduce.nodes,
           edges = _elements$map$reduce.edges;
@@ -37807,7 +37828,7 @@
           nodeTypes: this.nodeTypes,
           edgeTypes: this.edgeTypes
         }), /*#__PURE__*/React__default.createElement(GlobalKeyHandler, {
-          onNodeRemove: onNodeRemove
+          onElementsRemove: onElementsRemove
         }), children));
       }
     }]);
@@ -37815,7 +37836,7 @@
   }(React.PureComponent);
   ReactGraph.defaultProps = {
     onElementClick: function onElementClick() {},
-    onNodeRemove: function onNodeRemove() {},
+    onElementsRemove: function onElementsRemove() {},
     onLoad: function onLoad() {},
     onMove: function onMove() {},
     onChange: function onChange() {},

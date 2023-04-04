@@ -24,7 +24,7 @@ class ReactGraph extends PureComponent {
 
   render() {
     const {
-      style, onElementClick, children, onLoad, onMove, elements, onChange, onNodeRemove
+      style, onElementClick, children, onLoad, onMove, elements, onChange, onElementsRemove
     } = this.props;
 
     const { nodes, edges } = elements.map(parseElements).reduce(separateElements, {});
@@ -39,7 +39,7 @@ class ReactGraph extends PureComponent {
             nodeTypes={this.nodeTypes}
             edgeTypes={this.edgeTypes}
            />
-          <GlobalKeyHandler onNodeRemove={onNodeRemove} />
+          <GlobalKeyHandler onElementsRemove={onElementsRemove} />
           {children}
         </Provider>
       </div>
@@ -49,7 +49,7 @@ class ReactGraph extends PureComponent {
 
 ReactGraph.defaultProps = {
 	onElementClick: () => {},
-  onNodeRemove: () => {},
+  onElementsRemove: () => {},
 	onLoad: () => {},
 	onMove: () => {},
   onChange: () => {},

@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useContext, useState } from 'react';
 import ReactDraggable from 'react-draggable';
 
 import { GraphContext } from '../../GraphContext';
-import { updateNodeData, updateNodePos, setSelectedNodesIds } from '../../state/actions';
+import { updateNodeData, updateNodePos, setSelectedElements } from '../../state/actions';
 import cx from 'classnames';
+import { isEdge } from '../../graph-utils';
 
 const isInputTarget = (e) => ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.nodeName);
 
@@ -18,7 +19,7 @@ export default NodeComponent => (props) => {
 
   const [ x, y, k ] = state.transform;
 
-  const selected = state.selectedNodeIds.includes(id);
+  const selected = state.selectedElements.filter(e => !isEdge(e)).map(e => e.data.id).includes(id);
   const nodeClasses = cx('react-graph__node', { selected });
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export default NodeComponent => (props) => {
           if (isInputTarget(e)) {
             return false;
           }
-          dispatch(setSelectedNodesIds(id))
+          dispatch(setSelectedElements(id))
           onClick({ data, position });
         }}
       >
