@@ -11,7 +11,6 @@ export default (props) => {
 
   return (
     <path
-      className="react-graph__edge"
       d={`M ${sourceX},${sourceY}L ${targetX},${targetY}`}
     />
   );

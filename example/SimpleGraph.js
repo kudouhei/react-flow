@@ -87,7 +87,7 @@ class App extends PureComponent {
     return (
       <Graph
         elements={this.state.elements}
-        onNodeClick={node => console.log(node)}
+        onNodeClick={node => console.log('clicked', node)}
         onNodeRemove={nodeIds => console.log('remove', nodeIds)}
         style={{ width: '100%', height: '100%' }}
         onLoad={graphInstance => this.onLoad(graphInstance)}

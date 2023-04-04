@@ -4,11 +4,14 @@ import { separateElements, parseElements } from './graph-utils';
 import GraphView from './GraphView';
 import GlobalKeyHandler from './GlobalKeyHandler';
 import { Provider } from './GraphContext';
-import { createNodeTypes } from './NodeRenderer/utils';
 
 import DefaultNode from './NodeRenderer/NodeTypes/DefaultNode';
 import InputNode from './NodeRenderer/NodeTypes/InputNode';
 import OutputNode from './NodeRenderer/NodeTypes/OutputNode';
+import { createNodeTypes } from './NodeRenderer/utils';
+
+import DefaultEdge from './EdgeRenderer/EdgeTypes/DefaultEdge';
+import { createEdgeTypes } from './EdgeRenderer/utils';
 
 import './style.css';
 
@@ -16,19 +19,26 @@ class ReactGraph extends PureComponent {
   constructor(props) {
     super(props);
     this.nodeTypes = createNodeTypes(props.nodeTypes);
+    this.edgeTypes = createEdgeTypes(props.edgeTypes);
   }
 
   render() {
     const {
-      style, onNodeClick, children, onLoad, onMove, elements, onChange, onNodeRemove
+      style, onElementClick, children, onLoad, onMove, elements, onChange, onNodeRemove
     } = this.props;
 
     const { nodes, edges } = elements.map(parseElements).reduce(separateElements, {});
 
     return (
       <div style={style} className="react-graph">
-        <Provider nodes={nodes} edges={edges} onNodeClick={onNodeClick}>
-          <GraphView onLoad={onLoad} onMove={onMove} onChange={onChange} nodeTypes={this.nodeTypes} />
+        <Provider nodes={nodes} edges={edges} onElementClick={onElementClick}>
+          <GraphView 
+            onLoad={onLoad} 
+            onMove={onMove} 
+            onChange={onChange} 
+            nodeTypes={this.nodeTypes}
+            edgeTypes={this.edgeTypes}
+           />
           <GlobalKeyHandler onNodeRemove={onNodeRemove} />
           {children}
         </Provider>
@@ -38,7 +48,7 @@ class ReactGraph extends PureComponent {
 }
 
 ReactGraph.defaultProps = {
-	onNodeClick: () => {},
+	onElementClick: () => {},
   onNodeRemove: () => {},
 	onLoad: () => {},
 	onMove: () => {},
@@ -48,6 +58,9 @@ ReactGraph.defaultProps = {
     default: DefaultNode,
     output: OutputNode
   },
+  edgeTypes: {
+    default: DefaultEdge
+  }
 };
 
 export default ReactGraph;

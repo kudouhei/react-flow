@@ -83,6 +83,7 @@ const GraphView = (props) => {
       <EdgeRenderer
         width={state.width}
         height={state.height}
+        edgeTypes={props.edgeTypes}
       />
       { shiftPressed && <UserSelection /> }
       {state.nodesSelectionActive && <NodesSelection />}
