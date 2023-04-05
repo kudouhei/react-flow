@@ -1,6 +1,5 @@
-import React, { createContext, useEffect, useReducer, useRef } from "react";
-import PropTypes from "prop-types";
-
+import React, { createContext, useEffect, useReducer, useRef } from 'react';
+import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
 
 import { reducer, initialState } from '../state';
@@ -10,15 +9,16 @@ export const GraphContext = createContext({});
 
 function usePrevious(value) {
   const ref = useRef();
-  
+
   useEffect(() => {
     ref.current = value;
   });
+
   return ref.current;
 }
 
 export const Provider = (props) => {
-  const { 
+  const {
     onElementClick,
     children
   } = props;
@@ -33,8 +33,9 @@ export const Provider = (props) => {
         return {
           ...existingNode,
           data: { ...existingNode.data, ...propNode.data }
-        }
+        };
       }
+
       return propNode;
     });
 

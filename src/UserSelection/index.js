@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
+
 import { GraphContext } from '../GraphContext';
 import { updateSelection, setSelection, setNodesSelection } from '../state/actions';
 
@@ -9,7 +10,7 @@ const initialRect = {
   y: 0,
   width: 0,
   height: 0,
-  draw: false,
+  draw: false
 };
 
 function getMousePosition(evt) {
@@ -17,8 +18,8 @@ function getMousePosition(evt) {
 
   return {
     x: evt.clientX - containerBounds.left,
-    y: evt.clientY - containerBounds.top
-  }
+    y: evt.clientY - containerBounds.top,
+  };
 }
 
 export default () => {
@@ -38,6 +39,7 @@ export default () => {
         y: mousePos.y,
         draw: true
       }));
+
       dispatch(setSelection(true));
     }
 
@@ -48,9 +50,8 @@ export default () => {
         }
 
         const mousePos = getMousePosition(evt);
-        const negativeX = mousePos.x < r.startX;
-        const negativeY = mousePos.y < r.startY;
-
+        const negativeX = mousePos.x < currentRect.startX;
+        const negativeY = mousePos.y < currentRect.startY;
         const nextRect = {
           ...currentRect,
           x: negativeX ? mousePos.x : currentRect.x,
@@ -59,22 +60,22 @@ export default () => {
           height: negativeY ? currentRect.startY - mousePos.y : mousePos.y - currentRect.startY,
         };
 
-        dispatch(setNodesSelection({ isActive: true, selection: nextRect }));
-        dispatch(setSelection(false));
+        dispatch(updateSelection(nextRect));
 
         return nextRect;
-      })
+      });
     }
 
     function onMouseUp() {
       setRect((currentRect) => {
-        dispatch(setNodesSelection({ isActive: true, selection: currentRect}))
-      })
-      dispatch(setSelection(false))
-      return {
-        ...currentRect,
-        draw: false,
-      }
+        dispatch(setNodesSelection({ isActive: true, selection: currentRect }));
+        dispatch(setSelection(false));
+
+        return {
+          ...currentRect,
+          draw: false
+        };
+      });
     }
 
     selectionPane.current.addEventListener('mousedown', onMouseDown);
@@ -88,13 +89,12 @@ export default () => {
     };
   }, []);
 
-
   return (
     <div
       className="react-graph__selectionpane"
       ref={selectionPane}
     >
-      {rect.draw || rect.fixed && (
+      {(rect.draw || rect.fixed) && (
         <div
           className="react-graph__selection"
           style={{

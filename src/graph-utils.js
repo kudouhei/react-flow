@@ -5,6 +5,7 @@ export const parseElements = e => {
   if (isEdge(e)) {
     return e;
   }
+
   return {
     ...e,
     __rg: {
@@ -13,7 +14,7 @@ export const parseElements = e => {
       height: null
     }
   }
-}
+};
 
 export const separateElements = (res, element) => {
   res.edges = res.edges ? res.edges : [];
@@ -93,7 +94,7 @@ export const getNodesInside = (nodes, bbox, transform = [0, 0, 1]) => {
 
 export const getConnectedEdges = (nodes, edges) => {
   const nodeIds = nodes.map(n => n.data.id);
-  return edges.filter(e => nodeIds.includes(e.data.source) || nodeIds.includes(e.data.target));
+  return edges.filter(e => nodeIds.includes(e.data.source) || nodeIds.includes(e.data.target))
 }
 
 export default {

@@ -1,15 +1,15 @@
-import { zoomIdentity } from "d3-zoom";
+import { zoomIdentity } from 'd3-zoom';
 
-import { getBoundingBox, getNodesInside, getConnectedEdges } from "../graph-utils";
+import { getBoundingBox, getNodesInside, getConnectedEdges } from '../graph-utils';
 
-export const SET_EDGES = "SET_EDGES";
-export const SET_NODES = "SET_NODES";
-export const UPDATE_NODE_DATA = "UPDATE_NODE_DATA";
-export const UPDATE_NODE_POS = "UPDATE_NODE_POS";
-export const UPDATE_TRANSFORM = "UPDATE_TRANSFORM";
-export const UPDATE_SIZE = "UPDATE_SIZE";
-export const INIT_D3 = "INIT_D3";
-export const FIT_VIEW = "FIT_VIEW";
+export const SET_EDGES = 'SET_EDGES';
+export const SET_NODES = 'SET_NODES';
+export const UPDATE_NODE_DATA = 'UPDATE_NODE_DATA';
+export const UPDATE_NODE_POS = 'UPDATE_NODE_POS';
+export const UPDATE_TRANSFORM = 'UPDATE_TRANSFORM';
+export const UPDATE_SIZE = 'UPDATE_SIZE';
+export const INIT_D3 = 'INIT_D3';
+export const FIT_VIEW = 'FIT_VIEW';
 export const UPDATE_SELECTION = 'UPDATE_SELECTION';
 export const SET_SELECTION = 'SET_SELECTION';
 export const SET_NODES_SELECTION = 'SET_NODES_SELECTION';
@@ -43,11 +43,11 @@ export const reducer = (state, action) => {
           if (n.data.id === action.payload.id) {
             n.__rg = {
               ...n.__rg,
-              ...action.payload.data,
+              ...action.payload.data
             };
           }
           return n;
-        }),
+        })
       };
     }
     case UPDATE_NODE_POS: {
@@ -58,32 +58,25 @@ export const reducer = (state, action) => {
             n.__rg = {
               ...n.__rg,
               position: action.payload.pos
-            }
+            };
           }
+
           return n;
-        }),
+        })
       };
     }
     case FIT_VIEW: {
       const bounds = getBoundingBox(state.nodes);
-      const k =
-        Math.min(state.width, state.height) /
-        Math.max(bounds.width, bounds.height);
-      const boundsCenterX = bounds.x + bounds.width / 2;
-      const boundsCenterY = bounds.y + bounds.height / 2;
-      const translate = [
-        state.width / 2 - boundsCenterX * k,
-        state.height / 2 - boundsCenterY * k,
-      ];
-      const fittedTransform = zoomIdentity
-        .translate(translate[0], translate[1])
-        .scale(k);
+      const k = Math.min(state.width, state.height) / Math.max(bounds.width, bounds.height);
+      const boundsCenterX = bounds.x + (bounds.width / 2);
+      const boundsCenterY = bounds.y + (bounds.height / 2);
+      const translate = [(state.width / 2) - (boundsCenterX * k), (state.height / 2) - (boundsCenterY * k)];
+      const fittedTransform = zoomIdentity.translate(translate[0], translate[1]).scale(k);
 
       state.d3Selection.call(state.d3Zoom.transform, fittedTransform);
 
       return state;
     }
-
     case UPDATE_SELECTION: {
       const selectedNodes = getNodesInside(state.nodes, action.payload.selection, state.transform);
       const selectedEdges = getConnectedEdges(selectedNodes, state.edges);
@@ -94,27 +87,23 @@ export const reducer = (state, action) => {
         selectedElements: [...selectedNodes, ...selectedEdges]
       };
     }
-
     case SET_NODES_SELECTION: {
       if (!action.payload.nodesSelectionActive) {
         return { ...state, nodesSelectionActive: false, selectedElements: [] };
       }
       const selectedNodes = getNodesInside(state.nodes, action.payload.selection, state.transform);
       const selectedNodesBbox = getBoundingBox(selectedNodes);
+
       return { ...state, ...action.payload, selectedNodesBbox };
     }
-
+    // unused
     case REMOVE_NODES: {
       const { ids } = action.payload;
-      const nextEdges = state.edges.filter(e => !ids.includes(e.data.target) && !ids.includes(e.data.source));
-      
-      console.log(ids,);
-      console.log( state.edges, nextEdges, );
-      console.log(state.nodes, nextNodes);
+      const nextEdges = state.edges.filter(e => !ids.includes(e.data.target) && !ids.includes(e.data.source));
+      const nextNodes = state.nodes.filter(n => !ids.includes(n.data.id));
 
       return { ...state, nodes: nextNodes, edges: nextEdges };
     }
-
     case SET_NODES:
     case SET_EDGES:
     case UPDATE_TRANSFORM:

@@ -3,22 +3,21 @@ import React, { PureComponent } from 'react';
 import { Consumer } from '../GraphContext';
 
 class EdgeRenderer extends PureComponent {
-
   renderEdge(e, nodes, onElementClick) {
     const edgeType = e.data.type || 'default';
     const sourceNode = nodes.find(n => n.data.id === e.data.source);
     const targetNode = nodes.find(n => n.data.id === e.data.target);
-  
+
     if (!sourceNode) {
       throw new Error(`couldn't create edge for source id: ${e.data.source}`);
     }
-  
+
     if (!targetNode) {
       throw new Error(`couldn't create edge for source id: ${e.data.target}`);
     }
 
     const EdgeComponent = this.props.edgeTypes[edgeType] || this.props.edgeTypes.default;
-  
+
     return (
       <EdgeComponent
         key={`${e.data.source}-${e.data.target}`}
@@ -56,6 +55,5 @@ class EdgeRenderer extends PureComponent {
     );
   }
 }
-
 
 export default EdgeRenderer;

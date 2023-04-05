@@ -34681,14 +34681,14 @@
   module.exports = isEqual;
   });
 
-  var SET_EDGES = "SET_EDGES";
-  var SET_NODES = "SET_NODES";
-  var UPDATE_NODE_DATA = "UPDATE_NODE_DATA";
-  var UPDATE_NODE_POS = "UPDATE_NODE_POS";
-  var UPDATE_TRANSFORM = "UPDATE_TRANSFORM";
-  var UPDATE_SIZE = "UPDATE_SIZE";
-  var INIT_D3 = "INIT_D3";
-  var FIT_VIEW = "FIT_VIEW";
+  var SET_EDGES = 'SET_EDGES';
+  var SET_NODES = 'SET_NODES';
+  var UPDATE_NODE_DATA = 'UPDATE_NODE_DATA';
+  var UPDATE_NODE_POS = 'UPDATE_NODE_POS';
+  var UPDATE_TRANSFORM = 'UPDATE_TRANSFORM';
+  var UPDATE_SIZE = 'UPDATE_SIZE';
+  var INIT_D3 = 'INIT_D3';
+  var FIT_VIEW = 'FIT_VIEW';
   var UPDATE_SELECTION = 'UPDATE_SELECTION';
   var SET_SELECTION = 'SET_SELECTION';
   var SET_NODES_SELECTION = 'SET_NODES_SELECTION';
@@ -34773,15 +34773,16 @@
             selectedNodesBbox: selectedNodesBbox
           });
         }
+      // unused
       case REMOVE_NODES:
         {
           var ids = action.payload.ids;
           var nextEdges = state.edges.filter(function (e) {
             return !ids.includes(e.data.target) && !ids.includes(e.data.source);
           });
-          console.log(ids);
-          console.log(state.edges, nextEdges);
-          console.log(state.nodes, nextNodes);
+          var nextNodes = state.nodes.filter(function (n) {
+            return !ids.includes(n.data.id);
+          });
           return _objectSpread2(_objectSpread2({}, state), {}, {
             nodes: nextNodes,
             edges: nextEdges
@@ -34800,6 +34801,14 @@
     }
   };
 
+  var updateTransform = function updateTransform(transform) {
+    return {
+      type: UPDATE_TRANSFORM,
+      payload: {
+        transform: [transform.x, transform.y, transform.k]
+      }
+    };
+  };
   var updateSize = function updateSize(size) {
     return {
       type: UPDATE_SIZE,
@@ -34865,6 +34874,17 @@
       }
     };
   };
+  var setNodesSelection = function setNodesSelection(_ref2) {
+    var isActive = _ref2.isActive,
+      selection = _ref2.selection;
+    return {
+      type: SET_NODES_SELECTION,
+      payload: {
+        nodesSelectionActive: isActive,
+        selection: selection
+      }
+    };
+  };
   var setSelectedElements = function setSelectedElements(elements) {
     var elementsArray = Array.isArray(elements) ? elements : [elements];
     return {
@@ -34875,13 +34895,10 @@
       }
     };
   };
-  var setNodesSelection = function setNodesSelection(_ref2) {
-    var isActive = _ref2.isActive,
-      selection = _ref2.selection;
+  var updateSelection = function updateSelection(selection) {
     return {
-      type: SET_NODES_SELECTION,
+      type: UPDATE_SELECTION,
       payload: {
-        nodesSelectionActive: isActive,
         selection: selection
       }
     };
@@ -34947,7 +34964,7 @@
       value: function renderNode(d, onElementClick) {
         var nodeType = d.data.type || 'default';
         if (!this.props.nodeTypes[nodeType]) {
-          console.warn("No node type found for type \"".concat(nodeType, "\". Using type \"default\"."));
+          console.warn("No node type found for type \"".concat(nodeType, "\". Using fallback type \"default\"."));
         }
         var NodeComponent = this.props.nodeTypes[nodeType] || this.props.nodeTypes["default"];
         return /*#__PURE__*/React__default.createElement(NodeComponent, _extends({
@@ -34960,8 +34977,8 @@
       value: function render() {
         var _this = this;
         return /*#__PURE__*/React__default.createElement(Consumer, null, function (_ref) {
-          var state = _ref.state,
-            onElementClick = _ref.onElementClick;
+          var onElementClick = _ref.onElementClick,
+            state = _ref.state;
           return /*#__PURE__*/React__default.createElement("div", {
             className: "react-graph__nodes",
             style: {
@@ -35057,7 +35074,7 @@
       _useState2 = _slicedToArray(_useState, 2),
       rect = _useState2[0],
       setRect = _useState2[1];
-    var _useContext = useContext(GraphContext),
+    var _useContext = React.useContext(GraphContext),
       dispatch = _useContext.dispatch;
     React.useEffect(function () {
       function onMouseDown(evt) {
@@ -35079,19 +35096,15 @@
             return currentRect;
           }
           var mousePos = getMousePosition(evt);
-          var negativeX = mousePos.x < r.startX;
-          var negativeY = mousePos.y < r.startY;
+          var negativeX = mousePos.x < currentRect.startX;
+          var negativeY = mousePos.y < currentRect.startY;
           var nextRect = _objectSpread2(_objectSpread2({}, currentRect), {}, {
             x: negativeX ? mousePos.x : currentRect.x,
             y: negativeY ? mousePos.y : currentRect.y,
             width: negativeX ? currentRect.startX - mousePos.x : mousePos.x - currentRect.startX,
             height: negativeY ? currentRect.startY - mousePos.y : mousePos.y - currentRect.startY
           });
-          dispatch(setNodesSelection({
-            isActive: true,
-            selection: nextRect
-          }));
-          dispatch(setSelection(false));
+          dispatch(updateSelection(nextRect));
           return nextRect;
         });
       }
@@ -35101,10 +35114,10 @@
             isActive: true,
             selection: currentRect
           }));
-        });
-        dispatch(setSelection(false));
-        return _objectSpread2(_objectSpread2({}, currentRect), {}, {
-          draw: false
+          dispatch(setSelection(false));
+          return _objectSpread2(_objectSpread2({}, currentRect), {}, {
+            draw: false
+          });
         });
       }
       selectionPane.current.addEventListener('mousedown', onMouseDown);
@@ -35119,7 +35132,7 @@
     return /*#__PURE__*/React__default.createElement("div", {
       className: "react-graph__selectionpane",
       ref: selectionPane
-    }, rect.draw || rect.fixed && /*#__PURE__*/React__default.createElement("div", {
+    }, (rect.draw || rect.fixed) && /*#__PURE__*/React__default.createElement("div", {
       className: "react-graph__selection",
       style: {
         width: rect.width,
@@ -37342,7 +37355,7 @@
     return elements.filter(isNode).reduce(function (res, node) {
       var startPosition = {
         x: node.__rg.position.x || node.position.x,
-        y: node.__rg.position.y || node.position.y
+        y: node.__rg.position.y || node.position.x
       };
       res[node.data.id] = startPosition;
       return res;
@@ -37419,12 +37432,12 @@
       _useState2 = _slicedToArray(_useState, 2),
       keyPressed = _useState2[0],
       setKeyPressed = _useState2[1];
-    var downHandler = function downHandler(_ref) {
+    function downHandler(_ref) {
       var key = _ref.key;
       if (key === targetKey) {
         setKeyPressed(true);
       }
-    };
+    }
     var upHandler = function upHandler(_ref2) {
       var key = _ref2.key;
       if (key === targetKey) {
@@ -37448,7 +37461,7 @@
     var _useContext = React.useContext(GraphContext),
       state = _useContext.state,
       dispatch = _useContext.dispatch;
-    var shiftPressed = useKeyPress("Shift");
+    var shiftPressed = useKeyPress('Shift');
     React.useEffect(function () {
       var selection = select(zoomPane.current).call(d3ZoomInstance);
       dispatch(initD3({
@@ -37458,12 +37471,13 @@
     }, []);
     React.useEffect(function () {
       if (shiftPressed) {
-        d3ZoomInstance.on("zoom", null);
+        d3ZoomInstance.on('zoom', null);
       } else {
-        d3ZoomInstance.on("zoom", function () {
+        d3ZoomInstance.on('zoom', function () {
           if (event.sourceEvent && event.sourceEvent.target !== zoomPane.current) {
             return false;
           }
+          dispatch(updateTransform(event.transform));
           props.onMove();
         });
         if (state.d3Selection) {
@@ -37569,7 +37583,7 @@
   });
 
   var nodeStyles$1 = {
-    background: "#9999ff",
+    background: '#9999ff',
     padding: 10,
     borderRadius: 5,
     width: 150
@@ -37583,8 +37597,8 @@
     }, data.label, /*#__PURE__*/React__default.createElement(Handle, {
       style: {
         bottom: 0,
-        top: "auto",
-        transform: "translate(-50%, 50%)"
+        top: 'auto',
+        transform: 'translate(-50%, 50%)'
       }
     }));
   });
@@ -37698,10 +37712,10 @@
       });
       React.useEffect(function () {
         var bounds = nodeElement.current.getBoundingClientRect();
-        var unscaledWidth = Math.round(bounds.width * (1 / k));
+        var unscaledWith = Math.round(bounds.width * (1 / k));
         var unscaledHeight = Math.round(bounds.height * (1 / k));
         dispatch(updateNodeData(id, {
-          width: unscaledWidth,
+          width: unscaledWith,
           height: unscaledHeight
         }));
       }, []);
@@ -37722,7 +37736,7 @@
             y: offsetY
           });
         },
-        onDrag: function onDrag(e, d) {
+        onDrag: function onDrag(e) {
           var scaledClientX = {
             x: e.clientX * (1 / k),
             y: e.clientY * (1 / k)
@@ -37746,7 +37760,9 @@
           if (isInputTarget(e)) {
             return false;
           }
-          dispatch(setSelectedElements(id));
+          dispatch(setSelectedElements({
+            data: data
+          }));
           _onClick({
             data: data,
             position: position
@@ -37765,7 +37781,7 @@
     var specialTypes = Object.keys(nodeTypes).filter(function (k) {
       return !['input', 'default', 'output'].includes(k);
     }).reduce(function (res, key) {
-      res[key] = wrapNode(nodeTypes[key]) || DefaultNode;
+      res[key] = wrapNode(nodeTypes[key] || DefaultNode);
       return res;
     }, {});
     return _objectSpread2(_objectSpread2({}, standardTypes), specialTypes);
@@ -37881,8 +37897,8 @@
           children = _this$props.children,
           onLoad = _this$props.onLoad,
           onMove = _this$props.onMove,
-          elements = _this$props.elements,
           onChange = _this$props.onChange,
+          elements = _this$props.elements,
           onElementsRemove = _this$props.onElementsRemove;
         var _elements$map$reduce = elements.map(parseElements).reduce(separateElements, {}),
           nodes = _elements$map$reduce.nodes,
