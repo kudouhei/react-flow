@@ -19,6 +19,8 @@ export default NodeComponent => (props) => {
 
   const [ x, y, k ] = state.transform;
 
+  console.log('state.selectedElements',state.selectedElements)
+
   const selected = state.selectedElements.filter(e => !isEdge(e)).map(e => e.data.id).includes(id);
   const nodeClasses = cx('react-graph__node', { selected });
 

@@ -1,6 +1,6 @@
 import { zoomIdentity } from "d3-zoom";
 
-import { getBoundingBox, getNodesInside } from "../graph-utils";
+import { getBoundingBox, getNodesInside, getConnectedEdges } from "../graph-utils";
 
 export const SET_EDGES = "SET_EDGES";
 export const SET_NODES = "SET_NODES";
@@ -85,11 +85,14 @@ export const reducer = (state, action) => {
     }
 
     case UPDATE_SELECTION: {
-      const selectedNodes = getNodesInside(state,nodes, action.payload.selection, state.transform);
-      const selectedNodeIds = selectedNodes.map(n => n.data.id);
-      const selectedEdges = state.edges.filter(e => selectedNodeIds.includes(e.data.source) || selectedNodeIds.includes(e.data.target))
+      const selectedNodes = getNodesInside(state.nodes, action.payload.selection, state.transform);
+      const selectedEdges = getConnectedEdges(selectedNodes, state.edges);
 
-      return { ...state, ...action.payload, selectedElements: [...selectedNodes, ...selectedEdges]};
+      return {
+        ...state,
+        ...action.payload,
+        selectedElements: [...selectedNodes, ...selectedEdges]
+      };
     }
 
     case SET_NODES_SELECTION: {

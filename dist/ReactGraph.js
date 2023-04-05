@@ -273,6 +273,14 @@
       return position.x > bboxPos.x && position.x + width < bboxPos.x + bboxWidth && position.y > bboxPos.y && position.y + height < bboxPos.y + bboxHeight;
     });
   };
+  var getConnectedEdges = function getConnectedEdges(nodes, edges) {
+    var nodeIds = nodes.map(function (n) {
+      return n.data.id;
+    });
+    return edges.filter(function (e) {
+      return nodeIds.includes(e.data.source) || nodeIds.includes(e.data.target);
+    });
+  };
 
   var noop = {value: function() {}};
 
@@ -34740,13 +34748,8 @@
         }
       case UPDATE_SELECTION:
         {
-          var selectedNodes = getNodesInside(state, nodes, action.payload.selection, state.transform);
-          var selectedNodeIds = selectedNodes.map(function (n) {
-            return n.data.id;
-          });
-          var selectedEdges = state.edges.filter(function (e) {
-            return selectedNodeIds.includes(e.data.source) || selectedNodeIds.includes(e.data.target);
-          });
+          var selectedNodes = getNodesInside(state.nodes, action.payload.selection, state.transform);
+          var selectedEdges = getConnectedEdges(selectedNodes, state.edges);
           return _objectSpread2(_objectSpread2(_objectSpread2({}, state), action.payload), {}, {
             selectedElements: [].concat(_toConsumableArray(selectedNodes), _toConsumableArray(selectedEdges))
           });
@@ -35248,7 +35251,14 @@
     var removePressed = useKeyPress('Backspace');
     React.useEffect(function () {
       if (removePressed && state.selectedElements.length) {
-        props.onElementsRemove(state.selectedElements);
+        var elementsToRemove = state.selectedElements;
+
+        // we also want to remove the edges if only one node is selected
+        if (state.selectedElements.length === 1 && !isEdge(state.selectedElements[0])) {
+          var connectedEdges = getConnectedEdges(state.selectedElements, state.edges);
+          elementsToRemove = [].concat(_toConsumableArray(state.selectedElements), _toConsumableArray(connectedEdges));
+        }
+        props.onElementsRemove(elementsToRemove);
         dispatch(setNodesSelection({
           isActive: false
         }));
