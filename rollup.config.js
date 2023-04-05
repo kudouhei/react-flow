@@ -27,7 +27,10 @@ export default [{
 		plugins: [
 			bundleSize(),
 			postcss({
-				plugins: [autoprefixer()]
+				plugins: [
+					require('postcss-nested'),
+    				// require('autoprefixer')
+				]
 			}),
 			resolve(),
 			babel({
