@@ -37383,12 +37383,12 @@
       k = _state$transform[2];
     var position = state.selectedNodesBbox;
     var onStart = function onStart(evt) {
-      var scaledClientX = {
+      var scaledClient = {
         x: evt.clientX * (1 / k),
         y: evt.clientY * (1 / k)
       };
-      var offsetX = scaledClientX.x - position.x - x;
-      var offsetY = scaledClientX.y - position.y - y;
+      var offsetX = scaledClient.x - position.x - x;
+      var offsetY = scaledClient.y - position.y - y;
       var startPositions = getStartPositions(state.selectedElements);
       setOffset({
         x: offsetX,
@@ -37397,14 +37397,14 @@
       setStartPositions(startPositions);
     };
     var onDrag = function onDrag(evt) {
-      var scaledClientX = {
+      var scaledClient = {
         x: evt.clientX * (1 / k),
         y: evt.clientY * (1 / k)
       };
       state.selectedElements.filter(isNode).forEach(function (node) {
         dispatch(updateNodePos(node.data.id, {
-          x: startPositions[node.data.id].x + scaledClientX.x - position.x - offset.x - x,
-          y: startPositions[node.data.id].y + scaledClientX.y - position.y - offset.y - y
+          x: startPositions[node.data.id].x + scaledClient.x - position.x - offset.x - x,
+          y: startPositions[node.data.id].y + scaledClient.y - position.y - offset.y - y
         }));
       });
     };
@@ -37724,25 +37724,25 @@
         if (isInputTarget(evt)) {
           return false;
         }
-        var scaledClientX = {
+        var scaledClient = {
           x: evt.clientX * (1 / k),
           y: evt.clientY * (1 / k)
         };
-        var offsetX = scaledClientX.x - position.x - x;
-        var offsetY = scaledClientX.y - position.y - y;
+        var offsetX = scaledClient.x - position.x - x;
+        var offsetY = scaledClient.y - position.y - y;
         setOffset({
           x: offsetX,
           y: offsetY
         });
       };
       var onDrag = function onDrag(evt) {
-        var scaledClientX = {
+        var scaledClient = {
           x: evt.clientX * (1 / k),
           y: evt.clientY * (1 / k)
         };
         dispatch(updateNodePos(id, {
-          x: scaledClientX.x - x - offset.x,
-          y: scaledClientX.y - y - offset.y
+          x: scaledClient.x - x - offset.x,
+          y: scaledClient.y - y - offset.y
         }));
       };
       var onNodeClick = function onNodeClick(evt) {
@@ -37792,13 +37792,30 @@
   var DefaultEdge = (function (props) {
     var targetNode = props.targetNode,
       sourceNode = props.sourceNode;
+    var style = props.data ? props.data.style : {};
     var sourceX = sourceNode.__rg.position.x + sourceNode.__rg.width / 2;
     var sourceY = sourceNode.__rg.position.y + sourceNode.__rg.height;
     var targetX = targetNode.__rg.position.x + targetNode.__rg.width / 2;
     var targetY = targetNode.__rg.position.y;
-    return /*#__PURE__*/React__default.createElement("path", {
+    return /*#__PURE__*/React__default.createElement("path", _extends({}, style, {
       d: "M ".concat(sourceX, ",").concat(sourceY, "L ").concat(targetX, ",").concat(targetY)
-    });
+    }));
+  });
+
+  var BezierEdge = (function (props) {
+    var targetNode = props.targetNode,
+      sourceNode = props.sourceNode;
+    var style = props.data ? props.data.style : {};
+    var sourceX = sourceNode.__rg.position.x + sourceNode.__rg.width / 2;
+    var sourceY = sourceNode.__rg.position.y + sourceNode.__rg.height;
+    var targetX = targetNode.__rg.position.x + targetNode.__rg.width / 2;
+    var targetY = targetNode.__rg.position.y;
+    var yOffset = Math.abs(targetY - sourceY) / 2;
+    var centerY = targetY < sourceY ? targetY + yOffset : targetY - yOffset;
+    var dAttr = "M".concat(sourceX, ",").concat(sourceY, " C").concat(sourceX, ",").concat(centerY, " ").concat(targetX, ",").concat(centerY, " ").concat(targetX, ",").concat(targetY);
+    return /*#__PURE__*/React__default.createElement("path", _extends({}, style, {
+      d: dAttr
+    }));
   });
 
   var isInputTarget$1 = function isInputTarget(e) {
@@ -37838,10 +37855,11 @@
 
   function createEdgeTypes(edgeTypes) {
     var standardTypes = {
-      "default": wrapEdge(edgeTypes["default"] || DefaultEdge)
+      "default": wrapEdge(edgeTypes["default"] || DefaultEdge),
+      bezier: wrapEdge(edgeTypes.bezier || BezierEdge)
     };
     var specialTypes = Object.keys(DefaultEdge).filter(function (k) {
-      return !['default'].includes(k);
+      return !['default', 'bezier'].includes(k);
     }).reduce(function (res, key) {
       res[key] = wrapEdge(nodeTypes[key] || DefaultEdge);
       return res;
