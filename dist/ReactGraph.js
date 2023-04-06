@@ -30473,6 +30473,7 @@
   function debounce (delay, atBegin, callback) {
     return callback === undefined ? throttle(delay, atBegin, false) : throttle(delay, callback, atBegin !== false);
   }
+  //# sourceMappingURL=index.esm.js.map
 
   var index_esm = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -37348,7 +37349,7 @@
   	return Draggable;
 
   })));
-
+  //# sourceMappingURL=react-draggable.js.map
   });
 
   function getStartPositions(elements) {
@@ -37694,7 +37695,7 @@
         offset = _useState2[0],
         setOffset = _useState2[1];
       var data = props.data,
-        _onClick = props.onClick,
+        onClick = props.onClick,
         __rg = props.__rg;
       var position = __rg.position;
       var id = data.id;
@@ -37719,35 +37720,47 @@
           height: unscaledHeight
         }));
       }, []);
+      var onStart = function onStart(evt) {
+        if (isInputTarget(evt)) {
+          return false;
+        }
+        var scaledClientX = {
+          x: evt.clientX * (1 / k),
+          y: evt.clientY * (1 / k)
+        };
+        var offsetX = scaledClientX.x - position.x - x;
+        var offsetY = scaledClientX.y - position.y - y;
+        setOffset({
+          x: offsetX,
+          y: offsetY
+        });
+      };
+      var onDrag = function onDrag(evt) {
+        var scaledClientX = {
+          x: evt.clientX * (1 / k),
+          y: evt.clientY * (1 / k)
+        };
+        dispatch(updateNodePos(id, {
+          x: scaledClientX.x - x - offset.x,
+          y: scaledClientX.y - y - offset.y
+        }));
+      };
+      var onNodeClick = function onNodeClick(evt) {
+        if (isInputTarget(evt)) {
+          return false;
+        }
+        dispatch(setSelectedElements({
+          data: data
+        }));
+        onClick({
+          data: data,
+          position: position
+        });
+      };
       return /*#__PURE__*/React__default.createElement(reactDraggable.DraggableCore, {
         grid: [1, 1],
-        onStart: function onStart(e) {
-          if (isInputTarget(e)) {
-            return false;
-          }
-          var scaledClientX = {
-            x: e.clientX * (1 / k),
-            y: e.clientY * (1 / k)
-          };
-          var offsetX = scaledClientX.x - position.x - x;
-          var offsetY = scaledClientX.y - position.y - y;
-          setOffset({
-            x: offsetX,
-            y: offsetY
-          });
-        },
-        onDrag: function onDrag(e) {
-          var scaledClientX = {
-            x: e.clientX * (1 / k),
-            y: e.clientY * (1 / k)
-          };
-          e.preventDefault();
-          e.stopPropagation();
-          dispatch(updateNodePos(id, {
-            x: scaledClientX.x - x - offset.x,
-            y: scaledClientX.y - y - offset.y
-          }));
-        },
+        onStart: onStart,
+        onDrag: onDrag,
         scale: k
       }, /*#__PURE__*/React__default.createElement("div", {
         className: nodeClasses,
@@ -37756,18 +37769,7 @@
           zIndex: selected ? 10 : 3,
           transform: "translate(".concat(position.x, "px,").concat(position.y, "px)")
         },
-        onClick: function onClick(e) {
-          if (isInputTarget(e)) {
-            return false;
-          }
-          dispatch(setSelectedElements({
-            data: data
-          }));
-          _onClick({
-            data: data,
-            position: position
-          });
-        }
+        onClick: onNodeClick
       }, /*#__PURE__*/React__default.createElement(NodeComponent, props)));
     };
   });
