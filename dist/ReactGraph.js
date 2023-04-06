@@ -35069,7 +35069,7 @@
       y: evt.clientY - containerBounds.top
     };
   }
-  var UserSelection = (function () {
+  var UserSelection = /*#__PURE__*/React.memo(function () {
     var selectionPane = React.useRef(null);
     var _useState = React.useState(initialRect),
       _useState2 = _slicedToArray(_useState, 2),
@@ -37362,7 +37362,7 @@
       return res;
     }, {});
   }
-  var NodesSelection = (function () {
+  var NodesSelection = /*#__PURE__*/React.memo(function () {
     var graphContext = React.useContext(GraphContext);
     var _useState = React.useState({
         x: 0,
@@ -37457,7 +37457,7 @@
   }
 
   var d3ZoomInstance = zoom().scaleExtent([0.5, 2]);
-  var GraphView = function GraphView(props) {
+  var GraphView = /*#__PURE__*/React.memo(function (props) {
     var zoomPane = React.useRef(null);
     var _useContext = React.useContext(GraphContext),
       state = _useContext.state,
@@ -37525,12 +37525,12 @@
       },
       ref: zoomPane
     }));
-  };
+  });
   var GraphView$1 = reactSizeme.withSize({
     monitorHeight: true
   })(GraphView);
 
-  var GlobalKeyHandler = (function (props) {
+  var GlobalKeyHandler = /*#__PURE__*/React.memo(function (props) {
     var _useContext = React.useContext(GraphContext),
       state = _useContext.state,
       dispatch = _useContext.dispatch;
@@ -37682,7 +37682,7 @@
     return ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.nodeName);
   };
   var wrapNode = (function (NodeComponent) {
-    return function (props) {
+    return /*#__PURE__*/React.memo(function (props) {
       var nodeElement = React.useRef(null);
       var _useContext = React.useContext(GraphContext),
         state = _useContext.state,
@@ -37771,7 +37771,7 @@
         },
         onClick: onNodeClick
       }, /*#__PURE__*/React__default.createElement(NodeComponent, props)));
-    };
+    });
   });
 
   function createNodeTypes(nodeTypes) {
@@ -37805,7 +37805,7 @@
     return ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.nodeName);
   };
   var wrapEdge = (function (EdgeComponent) {
-    return function (props) {
+    return /*#__PURE__*/React.memo(function (props) {
       var _useContext = React.useContext(GraphContext),
         state = _useContext.state,
         dispatch = _useContext.dispatch;
@@ -37833,7 +37833,7 @@
           });
         }
       }, /*#__PURE__*/React__default.createElement(EdgeComponent, props));
-    };
+    });
   });
 
   function createEdgeTypes(edgeTypes) {
