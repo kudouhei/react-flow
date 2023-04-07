@@ -1,15 +1,18 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent } from "react";
 
-import Graph from '../src';
+import Graph, { isEdge } from "../src";
 // import Graph from '../dist/ReactGraph';
 // import wrapNode from '../src/NodeRenderer/NodeTypes/wrapNode';
 
-const SpecialNode = ({ data, styles }) => (
+const SpecialNode = ({ data, onChange, styles }) => (
   <div
-    style={{ background: '#FFCC00', padding: 10, borderRadius: 30, ...styles }}
+    style={{ background: "#FFCC00", padding: 10, borderRadius: 30, ...styles }}
   >
-    <div>I am <strong>special</strong>!<br />{data.label}</div>
-    <select onChange={(e) => data.onChange(e.target.value, data)}>
+    <div>
+      I am <strong>special</strong>!<br />
+      {data.label}
+    </div>
+    <select onChange={(e) => onChange(e.target.value, data)}>
       <option value="1">1</option>
       <option value="2">2</option>
       <option value="3">3</option>
@@ -22,38 +25,82 @@ class App extends PureComponent {
     super();
 
     const onChange = (id, d) => {
-      this.setState(prevState => (
-        { elements: prevState.elements.map(e => ({
-          ...e,
-          data: {
-            ...e.data,
-            label: '6' === e.data.id ? `option ${id} selected` : e.data.label
+      this.setState((prevState) => ({
+        elements: prevState.elements.map((e) => {
+          if (isEdge(e)) {
+            return e;
           }
-        }))
-        }
-      ));
-    }
+
+          return {
+            ...e,
+            data: {
+              ...e.data,
+              label: "6" === e.id ? `option ${id} selected` : e.data.label,
+            },
+          };
+        }),
+      }));
+    };
 
     this.state = {
       elements: [
-        { data: { id: '1', label: 'Tests', type: 'input' }, position: { x: 50, y: 50 } },
-        { data: { id: '2', label: 'This is a node This is a node This is a node This is a node' }, position: { x: 100, y: 100 } },
-        { data: { id: '3', label: 'This is a node' }, position: { x: 100, y: 200 }, style: { background: '#222', color: '#fff' } },
-        { data: { id: '4', label: 'nody nodes', type: 'output' }, position: { x: 50, y: 300 } },
-        { data: { id: '5', label: 'Another node', type: 'default' }, position: { x: 400, y: 300 } },
-        { data: { id: '6', label: 'no option selected', type: 'special', onChange }, position: { x: 400, y: 400 } },
-        { data: { source: '1', target: '2', type: 'bezier', animated: true, style: { stroke: 'orange' } } },
-        { data: { source: '2', target: '3' } },
-        { data: { source: '3', target: '4' } },
-        { data: { source: '3', target: '5' } },
-        { data: { source: '5', target: '6' } }
-      ]
+        {
+          id: "1",
+          type: "input",
+          data: { label: "Tests" },
+          position: { x: 50, y: 50 },
+        },
+        {
+          id: "2",
+          data: {
+            label:
+              "This is a node This is a node This is a node This is a node",
+          },
+          position: { x: 100, y: 100 },
+        },
+        {
+          id: "3",
+          data: { label: "This is a node" },
+          position: { x: 100, y: 200 },
+          style: { background: "#222", color: "#fff" },
+        },
+        {
+          id: "4",
+          type: "output",
+          data: { label: "nody nodes" },
+          position: { x: 50, y: 300 },
+        },
+        {
+          id: "5",
+          type: "default",
+          data: { label: "Another node" },
+          position: { x: 400, y: 300 },
+        },
+        {
+          id: "6",
+          type: "special",
+          onChange,
+          data: { label: "no option selected" },
+          position: { x: 400, y: 400 },
+        },
+        {
+          source: "1",
+          target: "2",
+          type: "bezier",
+          animated: true,
+          style: { stroke: "orange" },
+        },
+        { source: "2", target: "3" },
+        { source: "3", target: "4" },
+        { source: "3", target: "5" },
+        { source: "5", target: "6" },
+      ],
     };
   }
 
   onLoad(graphInstance) {
     this.graphInstance = graphInstance;
-    console.log('graph loaded:', this.graphInstance);
+    console.log("graph loaded:", this.graphInstance);
 
     this.graphInstance.fitView();
   }
@@ -73,12 +120,15 @@ class App extends PureComponent {
   }
 
   onAdd() {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       ...prevState,
       elements: prevState.elements.concat({
-        data: { id: prevState.elements.length + 1, label: 'Added node' },
-        position: { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight }
-      })
+        data: { id: prevState.elements.length + 1, label: "Added node" },
+        position: {
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+        },
+      }),
     }));
   }
 
@@ -87,25 +137,35 @@ class App extends PureComponent {
     return (
       <Graph
         elements={this.state.elements}
-        onElementClick={node => console.log('clicked', node)}
-        onNodeRemove={elements => console.log('remove', elements)}
-        style={{ width: '100%', height: '100%' }}
-        onLoad={graphInstance => this.onLoad(graphInstance)}
+        onElementClick={(node) => console.log("clicked", node)}
+        onNodeRemove={(elements) => console.log("remove", elements)}
+        style={{ width: "100%", height: "100%" }}
+        onLoad={(graphInstance) => this.onLoad(graphInstance)}
         onChange={(elements) => this.onChange(elements)}
         nodeTypes={{
-          special: SpecialNode
+          special: SpecialNode,
         }}
       >
         <button
           type="button"
-          style={{ position: 'absolute', right: '10px', bottom: '10px', zIndex: 4 }}
+          style={{
+            position: "absolute",
+            right: "10px",
+            bottom: "10px",
+            zIndex: 4,
+          }}
           onClick={() => this.onFitView()}
         >
           fit
         </button>
         <button
           type="button"
-          style={{ position: 'absolute', bottom: '10px', left: '10px', zIndex: 4 }}
+          style={{
+            position: "absolute",
+            bottom: "10px",
+            left: "10px",
+            zIndex: 4,
+          }}
           onClick={() => this.onAdd()}
         >
           add
