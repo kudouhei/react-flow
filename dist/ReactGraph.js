@@ -30474,7 +30474,6 @@
   function debounce (delay, atBegin, callback) {
     return callback === undefined ? throttle(delay, atBegin, false) : throttle(delay, callback, atBegin !== false);
   }
-  //# sourceMappingURL=index.esm.js.map
 
   var index_esm = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -37350,7 +37349,7 @@
   	return Draggable;
 
   })));
-  //# sourceMappingURL=react-draggable.js.map
+
   });
 
   function getStartPositions(elements) {
@@ -37554,75 +37553,6 @@
     return null;
   });
 
-  var Handle = (function (props) {
-    return /*#__PURE__*/React__default.createElement("div", _extends({
-      className: "react-graph__handle"
-    }, props));
-  });
-
-  var nodeStyles = {
-    background: '#ff6060',
-    padding: 10,
-    borderRadius: 5,
-    width: 150
-  };
-  var DefaultNode = (function (_ref) {
-    var data = _ref.data,
-      style = _ref.style;
-    return /*#__PURE__*/React__default.createElement("div", {
-      style: _objectSpread2(_objectSpread2({}, nodeStyles), style)
-    }, /*#__PURE__*/React__default.createElement(Handle, {
-      style: {
-        top: 0
-      }
-    }), data.label, /*#__PURE__*/React__default.createElement(Handle, {
-      style: {
-        bottom: 0,
-        top: 'auto',
-        transform: 'translate(-50%, 50%)'
-      }
-    }));
-  });
-
-  var nodeStyles$1 = {
-    background: '#9999ff',
-    padding: 10,
-    borderRadius: 5,
-    width: 150
-  };
-  var InputNode = (function (_ref) {
-    var data = _ref.data,
-      style = _ref.style;
-    return /*#__PURE__*/React__default.createElement("div", {
-      style: _objectSpread2(_objectSpread2({}, nodeStyles$1), style),
-      className: "react-graph__node-inner"
-    }, data.label, /*#__PURE__*/React__default.createElement(Handle, {
-      style: {
-        bottom: 0,
-        top: 'auto',
-        transform: 'translate(-50%, 50%)'
-      }
-    }));
-  });
-
-  var nodeStyles$2 = {
-    background: '#55ff99',
-    padding: 10,
-    borderRadius: 5,
-    width: 150
-  };
-  var OutputNode = (function (_ref) {
-    var data = _ref.data,
-      style = _ref.style;
-    return /*#__PURE__*/React__default.createElement("div", {
-      style: _objectSpread2(_objectSpread2({}, nodeStyles$2), style)
-    }, /*#__PURE__*/React__default.createElement(Handle, {
-      style: {
-        top: 0
-      }
-    }), data.label);
-  });
-
   var classnames = createCommonjsModule(function (module) {
   /*!
   	Copyright (c) 2018 Jed Watson.
@@ -37677,6 +37607,67 @@
   		window.classNames = classNames;
   	}
   }());
+  });
+
+  var Handle = (function (props) {
+    var handleClasses = classnames('react-graph__handle', {
+      input: props.input,
+      output: props.output
+    });
+    return /*#__PURE__*/React__default.createElement("div", _extends({
+      className: handleClasses
+    }, props));
+  });
+
+  var nodeStyles = {
+    background: '#ff6060',
+    padding: 10,
+    borderRadius: 5,
+    width: 150
+  };
+  var DefaultNode = (function (_ref) {
+    var data = _ref.data,
+      style = _ref.style;
+    return /*#__PURE__*/React__default.createElement("div", {
+      style: _objectSpread2(_objectSpread2({}, nodeStyles), style)
+    }, /*#__PURE__*/React__default.createElement(Handle, {
+      input: true
+    }), data.label, /*#__PURE__*/React__default.createElement(Handle, {
+      output: true
+    }));
+  });
+
+  var nodeStyles$1 = {
+    background: '#9999ff',
+    padding: 10,
+    borderRadius: 5,
+    width: 150
+  };
+  var InputNode = (function (_ref) {
+    var data = _ref.data,
+      style = _ref.style;
+    return /*#__PURE__*/React__default.createElement("div", {
+      style: _objectSpread2(_objectSpread2({}, nodeStyles$1), style),
+      className: "react-graph__node-inner"
+    }, data.label, /*#__PURE__*/React__default.createElement(Handle, {
+      output: true
+    }));
+  });
+
+  var nodeStyles$2 = {
+    background: '#55dd99',
+    padding: 10,
+    borderRadius: 5,
+    width: 150
+  };
+  var OutputNode = (function (_ref) {
+    var data = _ref.data,
+      style = _ref.style;
+    return /*#__PURE__*/React__default.createElement("div", {
+      style: _objectSpread2(_objectSpread2({}, nodeStyles$2), style)
+    }, /*#__PURE__*/React__default.createElement(Handle, {
+      input: true
+    }), data.label);
   });
 
   var isInputTarget = function isInputTarget(e) {
@@ -37904,7 +37895,7 @@
     }
   }
 
-  var css_248z = ".react-graph {\n  width: 100%;\n  height: 100%;\n  position: relative;\n  overflow: hidden;\n}\n\n.react-graph__renderer {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n}\n\n.react-graph__zoompane {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1;\n}\n\n.react-graph__selectionpane {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 2;\n}\n\n.react-graph__selection {\n  position: absolute;\n  top: 0;\n  left: 0;\n  background: rgba(0, 89, 220, 0.08);\n  border: 1px dotted rgba(0, 89, 220, 0.8);\n}\n\n.react-graph__edges {\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n  z-index: 2;\n}\n\n.react-graph__edge {\n  fill: none;\n  stroke: #333;\n  stroke-width: 2;\n  pointer-events: all;\n}\n\n.react-graph__edge.selected {\n    stroke: #ff5050;\n  }\n\n.react-graph__edge.animated {\n    stroke-dasharray: 5;\n    animation: dashdraw 0.5s linear infinite;\n  }\n\n@keyframes dashdraw {\n  from {stroke-dashoffset: 10}\n}\n\n\n.react-graph__nodes {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  z-index: 3;\n  pointer-events: none;\n  transform-origin: 0 0;\n}\n\n.react-graph__node {\n  position: absolute;\n  color: #222;\n  font-family: sans-serif;\n  font-size: 12px;\n  text-align: center;\n  cursor: grab;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n          user-select: none;\n  pointer-events: all;\n  transform-origin: 0 0;\n}\n\n.react-graph__node:hover > * {\n    box-shadow: 0 1px 5px 2px rgba(0, 0, 0, 0.08);\n  }\n\n.react-graph__node.selected > * {\n    box-shadow: 0 0 0 2px #000;\n  }\n\n.react-graph__handle {\n  position: absolute;\n  width: 12px;\n  height: 12px;\n  transform: translate(-50%, -50%);\n  background: #222;\n  left: 50%;\n  border-radius: 50%;\n}\n\n.react-graph__nodesselection {\n  z-index: 3;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  transform-origin: left top;\n  pointer-events: none;\n}\n\n.react-graph__nodesselection-rect {\n    position: absolute;\n    background: rgba(0, 89, 220, 0.08);\n    border: 1px dotted rgba(0, 89, 220, 0.8);\n    pointer-events: all;\n  }";
+  var css_248z = ".react-graph {\n  width: 100%;\n  height: 100%;\n  position: relative;\n  overflow: hidden;\n}\n\n.react-graph__renderer {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n}\n\n.react-graph__zoompane {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1;\n}\n\n.react-graph__selectionpane {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 2;\n}\n\n.react-graph__selection {\n  position: absolute;\n  top: 0;\n  left: 0;\n  background: rgba(0, 89, 220, 0.08);\n  border: 1px dotted rgba(0, 89, 220, 0.8);\n}\n\n.react-graph__edges {\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n  z-index: 2;\n}\n\n.react-graph__edge {\n  fill: none;\n  stroke: #bbb;\n  stroke-width: 2;\n  pointer-events: all;\n}\n\n.react-graph__edge.selected {\n    stroke: #555;\n  }\n\n.react-graph__edge.animated {\n    stroke-dasharray: 5;\n    animation: dashdraw 0.5s linear infinite;\n  }\n\n@keyframes dashdraw {\n  from {stroke-dashoffset: 10}\n}\n\n\n.react-graph__nodes {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  z-index: 3;\n  pointer-events: none;\n  transform-origin: 0 0;\n}\n\n.react-graph__node {\n  position: absolute;\n  color: #222;\n  font-family: sans-serif;\n  font-size: 12px;\n  text-align: center;\n  cursor: grab;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n          user-select: none;\n  pointer-events: all;\n  transform-origin: 0 0;\n}\n\n.react-graph__node:hover > * {\n    box-shadow: 0 1px 5px 2px rgba(0, 0, 0, 0.08);\n  }\n\n.react-graph__node.selected > * {\n    box-shadow: 0 0 0 2px #555;\n  }\n\n.react-graph__handle {\n  position: absolute;\n  width: 10px;\n  height: 5px;\n  transform: translate(-50%, 0);\n  background: rgba(255, 255, 255, 0.4);\n  left: 50%;\n  top: 0;\n}\n\n.react-graph__handle.output {\n    top: auto;\n    bottom: 0;\n  }\n\n.react-graph__nodesselection {\n  z-index: 3;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  transform-origin: left top;\n  pointer-events: none;\n}\n\n.react-graph__nodesselection-rect {\n    position: absolute;\n    background: rgba(0, 89, 220, 0.08);\n    border: 1px dotted rgba(0, 89, 220, 0.8);\n    pointer-events: all;\n  }";
   styleInject(css_248z);
 
   var ReactGraph = /*#__PURE__*/function (_PureComponent) {

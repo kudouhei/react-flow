@@ -48,7 +48,7 @@ class App extends PureComponent {
           id: "1",
           type: "input",
           data: { label: "Tests" },
-          position: { x: 50, y: 50 },
+          position: { x: 250, y: 5 },
         },
         {
           id: "2",
@@ -60,9 +60,13 @@ class App extends PureComponent {
         },
         {
           id: "3",
-          data: { label: "This is a node" },
+          data: { label: "I bring my own style" },
           position: { x: 100, y: 200 },
-          style: { background: "#222", color: "#fff" },
+          style: {
+            background: "#eee",
+            color: "#222",
+            border: "1px solid #bbb",
+          },
         },
         {
           id: "4",
@@ -81,19 +85,19 @@ class App extends PureComponent {
           type: "special",
           onChange,
           data: { label: "no option selected" },
-          position: { x: 400, y: 400 },
+          position: { x: 425, y: 400 },
         },
-        {
-          source: "1",
-          target: "2",
-          type: "bezier",
-          animated: true,
-          style: { stroke: "orange" },
-        },
+        { source: "1", target: "2", animated: true },
         { source: "2", target: "3" },
         { source: "3", target: "4" },
         { source: "3", target: "5" },
-        { source: "5", target: "6" },
+        {
+          source: "5",
+          target: "6",
+          type: "straight",
+          animated: true,
+          style: { stroke: "#FFCC00" },
+        },
       ],
     };
   }
