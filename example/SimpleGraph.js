@@ -43,6 +43,7 @@ class App extends PureComponent {
     };
 
     this.state = {
+      graphLoaded: false,
       elements: [
         {
           id: "1",
@@ -106,7 +107,12 @@ class App extends PureComponent {
     this.graphInstance = graphInstance;
     console.log("graph loaded:", this.graphInstance);
 
+    window.rg = graphInstance;
     this.graphInstance.fitView();
+
+    this.setState({
+      graphLoaded: true,
+    });
   }
 
   onChange(elements) {
@@ -117,9 +123,6 @@ class App extends PureComponent {
   }
 
   onFitView() {
-    if (!this.graphInstance) {
-      return false;
-    }
     this.graphInstance.fitView();
   }
 
@@ -127,13 +130,22 @@ class App extends PureComponent {
     this.setState((prevState) => ({
       ...prevState,
       elements: prevState.elements.concat({
-        data: { id: prevState.elements.length + 1, label: "Added node" },
+        id: prevState.elements.length + 1,
+        data: { label: "Added node" },
         position: {
           x: Math.random() * window.innerWidth,
           y: Math.random() * window.innerHeight,
         },
       }),
     }));
+  }
+
+  onZoomIn() {
+    this.graphInstance.zoomIn();
+  }
+
+  onZoomOut() {
+    this.graphInstance.zoomingOut();
   }
 
   render() {
@@ -158,22 +170,23 @@ class App extends PureComponent {
             bottom: "10px",
             zIndex: 4,
           }}
-          onClick={() => this.onFitView()}
-        >
-          fit
-        </button>
-        <button
-          type="button"
-          style={{
-            position: "absolute",
-            bottom: "10px",
-            left: "10px",
-            zIndex: 4,
-          }}
           onClick={() => this.onAdd()}
         >
           add
         </button>
+        {this.state.graphLoaded && (
+          <div className="controls">
+            <button type="button" onClick={() => this.onFitView()}>
+              fit
+            </button>
+            <button type="button" onClick={() => this.onZoomIn()}>
+              zoom in
+            </button>
+            <button type="button" onClick={() => this.onZoomOut()}>
+              zoom out
+            </button>
+          </div>
+        )}
       </Graph>
     );
   }

@@ -1,16 +1,15 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import cx from 'classnames';
 
-export default (props) => {
+export default memo(({ input, output, ...rest}) => {
   const handleClasses = cx(
-    'react-graph__handle', {
-      input: props.input,
-      output: props.output
-    }
+    'react-graph__handle', { input, output }
   );
 
   return (
-    <div className={handleClasses} {...props} />
+    <div className={handleClasses} 
+      {...rest} 
+    />
   );
-};
+});

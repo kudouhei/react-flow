@@ -117,6 +117,33 @@
       return false;
     }
   }
+  function _objectWithoutPropertiesLoose(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+    return target;
+  }
+  function _objectWithoutProperties(source, excluded) {
+    if (source == null) return {};
+    var target = _objectWithoutPropertiesLoose(source, excluded);
+    var key, i;
+    if (Object.getOwnPropertySymbols) {
+      var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+      for (i = 0; i < sourceSymbolKeys.length; i++) {
+        key = sourceSymbolKeys[i];
+        if (excluded.indexOf(key) >= 0) continue;
+        if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+        target[key] = source[key];
+      }
+    }
+    return target;
+  }
   function _assertThisInitialized(self) {
     if (self === void 0) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -32333,7 +32360,7 @@
     return _setPrototypeOf$1(o, p);
   }
 
-  function _objectWithoutPropertiesLoose(source, excluded) {
+  function _objectWithoutPropertiesLoose$1(source, excluded) {
     if (source == null) return {};
     var target = {};
     var sourceKeys = Object.keys(source);
@@ -32348,10 +32375,10 @@
     return target;
   }
 
-  function _objectWithoutProperties(source, excluded) {
+  function _objectWithoutProperties$1(source, excluded) {
     if (source == null) return {};
 
-    var target = _objectWithoutPropertiesLoose(source, excluded);
+    var target = _objectWithoutPropertiesLoose$1(source, excluded);
 
     var key, i;
 
@@ -32486,7 +32513,7 @@
           size = props.size,
           disablePlaceholder = props.disablePlaceholder,
           onSize = props.onSize,
-          restProps = _objectWithoutProperties(props, ["explicitRef", "className", "style", "size", "disablePlaceholder", "onSize"]);
+          restProps = _objectWithoutProperties$1(props, ["explicitRef", "className", "style", "size", "disablePlaceholder", "onSize"]);
 
       var noSizeData = size == null || size.width == null && size.height == null && size.position == null;
       var renderPlaceholder = noSizeData && !disablePlaceholder;
@@ -32776,7 +32803,7 @@
 
       var _children = props.children,
           render = props.render,
-          sizeMeConfig = _objectWithoutProperties(props, ["children", "render"]);
+          sizeMeConfig = _objectWithoutProperties$1(props, ["children", "render"]);
 
       _this.createComponent(sizeMeConfig);
 
@@ -32795,11 +32822,11 @@
         var _this$props = this.props,
             prevChildren = _this$props.children,
             prevRender = _this$props.render,
-            currentSizeMeConfig = _objectWithoutProperties(_this$props, ["children", "render"]);
+            currentSizeMeConfig = _objectWithoutProperties$1(_this$props, ["children", "render"]);
 
         var nextChildren = prevProps.children,
             nextRender = prevProps.render,
-            prevSizeMeConfig = _objectWithoutProperties(prevProps, ["children", "render"]);
+            prevSizeMeConfig = _objectWithoutProperties$1(prevProps, ["children", "render"]);
 
         if (!isShallowEqual(currentSizeMeConfig, prevSizeMeConfig)) {
           this.createComponent(currentSizeMeConfig);
@@ -34690,6 +34717,8 @@
   var UPDATE_SIZE = 'UPDATE_SIZE';
   var INIT_D3 = 'INIT_D3';
   var FIT_VIEW = 'FIT_VIEW';
+  var ZOOM_IN = 'ZOOM_IN';
+  var ZOOM_OUT = 'ZOOM_OUT';
   var UPDATE_SELECTION = 'UPDATE_SELECTION';
   var SET_SELECTION = 'SET_SELECTION';
   var SET_NODES_SELECTION = 'SET_NODES_SELECTION';
@@ -34747,9 +34776,21 @@
           var k = Math.min(state.width, state.height) / Math.max(bounds.width, bounds.height);
           var boundsCenterX = bounds.x + bounds.width / 2;
           var boundsCenterY = bounds.y + bounds.height / 2;
-          var translate = [state.width / 2 - boundsCenterX * k, state.height / 2 - boundsCenterY * k];
-          var fittedTransform = identity$1.translate(translate[0], translate[1]).scale(k);
+          var transform = [state.width / 2 - boundsCenterX * k, state.height / 2 - boundsCenterY * k];
+          var fittedTransform = identity$1.translate(transform[0], transform[1]).scale(k);
           state.d3Selection.call(state.d3Zoom.transform, fittedTransform);
+          return state;
+        }
+      case ZOOM_IN:
+        {
+          var _transform = state.transform;
+          state.d3Zoom.scaleTo(state.d3Selection, _transform[2] + 0.2);
+          return state;
+        }
+      case ZOOM_OUT:
+        {
+          var _transform2 = state.transform;
+          state.d3Zoom.scaleTo(state.d3Selection, _transform2[2] - 0.2);
           return state;
         }
       case UPDATE_SELECTION:
@@ -34865,6 +34906,16 @@
   var fitView = function fitView() {
     return {
       type: FIT_VIEW
+    };
+  };
+  var zoomIn = function zoomIn() {
+    return {
+      type: ZOOM_IN
+    };
+  };
+  var zoomOut = function zoomOut() {
+    return {
+      type: ZOOM_OUT
     };
   };
   var setSelection = function setSelection(isActive) {
@@ -37498,6 +37549,12 @@
           edges: state.edges,
           fitView: function fitView$1() {
             return dispatch(fitView());
+          },
+          zoomIn: function zoomIn$1() {
+            return dispatch(zoomIn());
+          },
+          zoomOut: function zoomOut$1() {
+            return dispatch(zoomOut());
           }
         });
       }
@@ -37609,14 +37666,18 @@
   }());
   });
 
-  var Handle = (function (props) {
+  var _excluded = ["input", "output"];
+  var Handle = /*#__PURE__*/React.memo(function (_ref) {
+    var input = _ref.input,
+      output = _ref.output,
+      rest = _objectWithoutProperties(_ref, _excluded);
     var handleClasses = classnames('react-graph__handle', {
-      input: props.input,
-      output: props.output
+      input: input,
+      output: output
     });
     return /*#__PURE__*/React__default.createElement("div", _extends({
       className: handleClasses
-    }, props));
+    }, rest));
   });
 
   var nodeStyles = {
@@ -37764,7 +37825,9 @@
           transform: "translate(".concat(position.x, "px,").concat(position.y, "px)")
         },
         onClick: onNodeClick
-      }, /*#__PURE__*/React__default.createElement(NodeComponent, props)));
+      }, /*#__PURE__*/React__default.createElement(NodeComponent, _extends({}, props, {
+        selected: selected
+      }))));
     });
   });
 
