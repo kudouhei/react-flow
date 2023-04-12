@@ -237,6 +237,14 @@
   var isNode = function isNode(element) {
     return element && !element.source && !element.target;
   };
+  var removeElements = function removeElements(elements, elementsToRemove) {
+    var nodeIdsToRemove = elementsToRemove.filter(isNode).map(function (n) {
+      return n.id;
+    });
+    return elements.filter(function (e) {
+      return !nodeIdsToRemove.includes(e.id) && !nodeIdsToRemove.includes(e.target) && !nodeIdsToRemove.includes(e.source);
+    });
+  };
   var parseElements = function parseElements(e) {
     e.type = e.type || 'default';
     if (isEdge(e)) {
@@ -30501,6 +30509,7 @@
   function debounce (delay, atBegin, callback) {
     return callback === undefined ? throttle(delay, atBegin, false) : throttle(delay, callback, atBegin !== false);
   }
+  //# sourceMappingURL=index.esm.js.map
 
   var index_esm = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -37400,7 +37409,7 @@
   	return Draggable;
 
   })));
-
+  //# sourceMappingURL=react-draggable.js.map
   });
 
   function getStartPositions(elements) {
@@ -38026,10 +38035,12 @@
 
   var isNode$1 = isNode;
   var isEdge$1 = isEdge;
+  var removeElements$1 = removeElements;
 
   exports.default = ReactGraph;
   exports.isEdge = isEdge$1;
   exports.isNode = isNode$1;
+  exports.removeElements = removeElements$1;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

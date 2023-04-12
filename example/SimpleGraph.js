@@ -1,6 +1,6 @@
 import React, { PureComponent } from "react";
 
-import Graph, { isEdge } from "../src";
+import Graph, { isEdge, removeElements } from "../src";
 // import Graph from '../dist/ReactGraph';
 // import wrapNode from '../src/NodeRenderer/NodeTypes/wrapNode';
 
@@ -104,10 +104,10 @@ class App extends PureComponent {
   }
 
   onLoad(graphInstance) {
-    this.graphInstance = graphInstance;
     console.log("graph loaded:", this.graphInstance);
 
     window.rg = graphInstance;
+    this.graphInstance = graphInstance;
     this.graphInstance.fitView();
 
     this.setState({
@@ -148,13 +148,19 @@ class App extends PureComponent {
     this.graphInstance.zoomingOut();
   }
 
+  onElementsRemove(elementsToRemove) {
+    this.setState(prevState => ({ 
+      elements: removeElements(prevState.elements, elementsToRemove)
+    }))
+  }
+
   render() {
     console.log(this.state.elements);
     return (
       <Graph
         elements={this.state.elements}
         onElementClick={(node) => console.log("clicked", node)}
-        onNodeRemove={(elements) => console.log("remove", elements)}
+        onElementsRemove={elements => this.onElementsRemove(elements)}
         style={{ width: "100%", height: "100%" }}
         onLoad={(graphInstance) => this.onLoad(graphInstance)}
         onChange={(elements) => this.onChange(elements)}
