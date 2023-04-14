@@ -8,7 +8,7 @@ import { isNode } from '../../graph-utils';
 import { Provider } from '../NodeIdContext';
 
 const isInput = e => ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.nodeName);
-const isHandle = e => e.target.className.includes('source');
+const isHandle = e => e.target.className && e.target.className.includes('source');
 const getHandleBounds = (sel, nodeElement, parentBounds) => {
   const handle = nodeElement.querySelector(sel);
 
@@ -36,7 +36,7 @@ export default NodeComponent => memo((props) => {
   const { state, dispatch } = useContext(GraphContext);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
-  const { data, onClick, type, id, __rg, onConnect } = props;
+  const { data, onClick, type, id, __rg, onConnect, onNodeDragStop } = props;
 
   const { position } = __rg;
 
@@ -90,6 +90,12 @@ export default NodeComponent => memo((props) => {
     onClick({ id, type, data, position });
   }
 
+  const onStop = () => {
+    onNodeDragStop({
+      id, type, data, position
+    })
+  }
+
   const onDrop = (evt) => {
     evt.preventDefault();
 
@@ -107,6 +113,7 @@ export default NodeComponent => memo((props) => {
       grid={[1, 1]}
       onStart={onStart}
       onDrag={onDrag}
+      onStop={onStop}
       scale={k}
     >
       <div

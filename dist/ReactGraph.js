@@ -30528,7 +30528,6 @@
   function debounce (delay, atBegin, callback) {
     return callback === undefined ? throttle(delay, atBegin, false) : throttle(delay, callback, atBegin !== false);
   }
-  //# sourceMappingURL=index.esm.js.map
 
   var index_esm = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -35049,6 +35048,7 @@
         return /*#__PURE__*/React__default.createElement(NodeComponent, _extends({
           key: d.id,
           onClick: this.props.onElementClick,
+          onNodeDragStop: this.props.onNodeDragStop,
           onConnect: this.props.onConnect
         }, d));
       }
@@ -37427,7 +37427,7 @@
   	return Draggable;
 
   })));
-  //# sourceMappingURL=react-draggable.js.map
+
   });
 
   function getStartPositions(elements) {
@@ -37597,6 +37597,7 @@
     }, /*#__PURE__*/React__default.createElement(NodeRenderer, {
       nodeTypes: props.nodeTypes,
       onElementClick: props.onElementClick,
+      onNodeDragStop: props.onNodeDragStop,
       onConnect: props.onConnect
     }), /*#__PURE__*/React__default.createElement(EdgeRenderer, {
       width: state.width,
@@ -37787,7 +37788,7 @@
     return ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.nodeName);
   };
   var isHandle = function isHandle(e) {
-    return e.target.className.includes('source');
+    return e.target.className && e.target.className.includes('source');
   };
   var getHandleBounds = function getHandleBounds(sel, nodeElement, parentBounds) {
     var handle = nodeElement.querySelector(sel);
@@ -37824,7 +37825,8 @@
         type = props.type,
         id = props.id,
         __rg = props.__rg,
-        onConnect = props.onConnect;
+        onConnect = props.onConnect,
+        onNodeDragStop = props.onNodeDragStop;
       var position = __rg.position;
       var _state$transform = _slicedToArray(state.transform, 3),
         x = _state$transform[0],
@@ -37890,6 +37892,14 @@
           position: position
         });
       };
+      var onStop = function onStop() {
+        onNodeDragStop({
+          id: id,
+          type: type,
+          data: data,
+          position: position
+        });
+      };
       var onDrop = function onDrop(evt) {
         evt.preventDefault();
         var source = evt.dataTransfer.getData('text/plain');
@@ -37905,6 +37915,7 @@
         grid: [1, 1],
         onStart: onStart,
         onDrag: onDrag,
+        onStop: onStop,
         scale: k
       }, /*#__PURE__*/React__default.createElement("div", {
         onDrop: onDrop,
@@ -38087,7 +38098,8 @@
           onChange = _this$props.onChange,
           elements = _this$props.elements,
           onElementsRemove = _this$props.onElementsRemove,
-          onConnect = _this$props.onConnect;
+          onConnect = _this$props.onConnect,
+          onNodeDragStop = _this$props.onNodeDragStop;
         var _elements$map$reduce = elements.map(parseElements).reduce(separateElements, {}),
           nodes = _elements$map$reduce.nodes,
           edges = _elements$map$reduce.edges;
@@ -38104,6 +38116,7 @@
           onChange: onChange,
           onElementClick: onElementClick,
           onConnect: onConnect,
+          onNodeDragStop: onNodeDragStop,
           nodeTypes: this.nodeTypes,
           edgeTypes: this.edgeTypes
         }), /*#__PURE__*/React__default.createElement(GlobalKeyHandler, {
@@ -38116,6 +38129,7 @@
   ReactGraph.defaultProps = {
     onElementClick: function onElementClick() {},
     onElementsRemove: function onElementsRemove() {},
+    onNodeDragStop: function onNodeDragStop() {},
     onConnect: function onConnect() {},
     onLoad: function onLoad() {},
     onMove: function onMove() {},

@@ -34,7 +34,7 @@ class ReactGraph extends PureComponent {
       onChange,
       elements,
       onElementsRemove,
-      onConnect
+      onConnect, onNodeDragStop
     } = this.props;
 
     const { nodes, edges } = elements
@@ -50,6 +50,7 @@ class ReactGraph extends PureComponent {
             onChange={onChange}
             onElementClick={onElementClick}
             onConnect={onConnect}
+            onNodeDragStop={onNodeDragStop}
             nodeTypes={this.nodeTypes}
             edgeTypes={this.edgeTypes}
           />
@@ -64,6 +65,7 @@ class ReactGraph extends PureComponent {
 ReactGraph.defaultProps = {
     onElementClick: () => {},
     onElementsRemove: () => {},
+    onNodeDragStop: () => {},
     onConnect: () => {},
       onLoad: () => {},
     onMove: () => {},
