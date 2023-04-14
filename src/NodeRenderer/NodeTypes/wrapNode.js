@@ -93,13 +93,13 @@ export default NodeComponent => memo((props) => {
   const onDrop = (evt) => {
     evt.preventDefault();
 
-    const sourceId = evt.dataTransfer.getData('text/plain');
+    const source = evt.dataTransfer.getData('text/plain');
 
-    if (sourceId === id) {
+    if (source === id) {
       return false;
     }
 
-    onConnect({ sourceId, targetId: id });
+    onConnect({ source, target: id });
   };
 
   return (

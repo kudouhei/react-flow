@@ -1,6 +1,6 @@
 import React, { PureComponent } from "react";
 
-import Graph, { isEdge, removeElements, SourceHandle, TargetHandle } from '../src';
+import Graph, { isEdge, removeElements, getOutgoers, SourceHandle, TargetHandle } from '../src';
 // import Graph from '../dist/ReactGraph';
 // import wrapNode from '../src/NodeRenderer/NodeTypes/wrapNode';
 
@@ -8,6 +8,7 @@ const SpecialNode = ({ data, onChange, styles }) => (
   <div
     style={{ background: '#FFCC00', padding: 10, borderRadius: 2, ...styles }}
   >
+    <TargetHandle style={{ left: 10, background: '#999' }} />
     <div>
       I am <strong>special</strong>!<br />
       {data.label}
