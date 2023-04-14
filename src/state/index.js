@@ -70,7 +70,7 @@ export const reducer = (state, action) => {
     case FIT_VIEW: {
       const bounds = getBoundingBox(state.nodes);
       const maxBoundsSize = Math.max(bounds.width, bounds.height);
-      const k = Math.min(state.width, state.height) / (maxBoundsSize + (maxBoundsSize * action.payload.padding));
+      const k = Math.min(state.width, state.height) / (maxBoundsSize);
       const boundsCenterX = bounds.x + (bounds.width / 2);
       const boundsCenterY = bounds.y + (bounds.height / 2);
       const transform = [(state.width / 2) - (boundsCenterX * k), (state.height / 2) - (boundsCenterY * k)];

@@ -30528,6 +30528,7 @@
   function debounce (delay, atBegin, callback) {
     return callback === undefined ? throttle(delay, atBegin, false) : throttle(delay, callback, atBegin !== false);
   }
+  //# sourceMappingURL=index.esm.js.map
 
   var index_esm = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -34801,7 +34802,7 @@
         {
           var bounds = getBoundingBox(state.nodes);
           var maxBoundsSize = Math.max(bounds.width, bounds.height);
-          var k = Math.min(state.width, state.height) / (maxBoundsSize + maxBoundsSize * action.payload.padding);
+          var k = Math.min(state.width, state.height) / maxBoundsSize;
           var boundsCenterX = bounds.x + bounds.width / 2;
           var boundsCenterY = bounds.y + bounds.height / 2;
           var transform = [state.width / 2 - boundsCenterX * k, state.height / 2 - boundsCenterY * k];
@@ -34931,14 +34932,9 @@
       }
     };
   };
-  var fitView = function fitView(_ref2) {
-    var _ref2$padding = _ref2.padding,
-      padding = _ref2$padding === void 0 ? 0 : _ref2$padding;
+  var fitView = function fitView() {
     return {
-      type: FIT_VIEW,
-      payload: {
-        padding: padding
-      }
+      type: FIT_VIEW
     };
   };
   var zoomIn = function zoomIn() {
@@ -34959,9 +34955,9 @@
       }
     };
   };
-  var setNodesSelection = function setNodesSelection(_ref3) {
-    var isActive = _ref3.isActive,
-      selection = _ref3.selection;
+  var setNodesSelection = function setNodesSelection(_ref2) {
+    var isActive = _ref2.isActive,
+      selection = _ref2.selection;
     return {
       type: SET_NODES_SELECTION,
       payload: {
@@ -37431,7 +37427,7 @@
   	return Draggable;
 
   })));
-
+  //# sourceMappingURL=react-draggable.js.map
   });
 
   function getStartPositions(elements) {
@@ -37579,7 +37575,7 @@
           nodes: state.nodes,
           edges: state.edges,
           fitView: function fitView$1(opts) {
-            return dispatch(fitView(opts));
+            return dispatch(fitView());
           },
           zoomIn: function zoomIn$1() {
             return dispatch(zoomIn());
