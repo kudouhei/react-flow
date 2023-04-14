@@ -1,12 +1,12 @@
 import React, { PureComponent } from "react";
 
-import Graph, { isEdge, removeElements, getOutgoers } from "../src";
+import Graph, { isEdge, removeElements, SourceHandle, TargetHandle } from '../src';
 // import Graph from '../dist/ReactGraph';
 // import wrapNode from '../src/NodeRenderer/NodeTypes/wrapNode';
 
 const SpecialNode = ({ data, onChange, styles }) => (
   <div
-    style={{ background: "#FFCC00", padding: 10, borderRadius: 30, ...styles }}
+    style={{ background: '#FFCC00', padding: 10, borderRadius: 2, ...styles }}
   >
     <div>
       I am <strong>special</strong>!<br />
@@ -17,6 +17,7 @@ const SpecialNode = ({ data, onChange, styles }) => (
       <option value="2">2</option>
       <option value="3">3</option>
     </select>
+    <SourceHandle style={{ left: 10, background: '#999' }} />
   </div>
 );
 
@@ -81,24 +82,14 @@ class App extends PureComponent {
           data: { label: "Another node" },
           position: { x: 400, y: 300 },
         },
-        {
-          id: "6",
-          type: "special",
-          onChange,
-          data: { label: "no option selected" },
-          position: { x: 425, y: 400 },
-        },
+        { id: '6', type: 'special', onChange, data: { label: 'no option selected' }, position: { x: 425, y: 375 } },
+        { id: '7', type: 'output', data: { label: 'output' }, position: { x: 250, y: 500 } },
         { source: "1", target: "2", animated: true },
         { source: "2", target: "3" },
         { source: "3", target: "4" },
         { source: "3", target: "5" },
-        {
-          source: "5",
-          target: "6",
-          type: "straight",
-          animated: true,
-          style: { stroke: "#FFCC00" },
-        },
+        { source: '5', target: '6', type: 'straight', animated: true, style: { stroke: '#FFCC00' } },
+        { source: '6', target: '7', style: { stroke: '#FFCC00' }},
       ],
     };
   }
@@ -166,6 +157,7 @@ class App extends PureComponent {
         elements={this.state.elements}
         onElementClick={element => this.onElementClick(element)}
         onElementsRemove={elements => this.onElementsRemove(elements)}
+        onConnect={params => console.log(params)}
         style={{ width: "100%", height: "100%" }}
         onLoad={(graphInstance) => this.onLoad(graphInstance)}
         onChange={(elements) => this.onChange(elements)}

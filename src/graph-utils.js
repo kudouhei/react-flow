@@ -23,14 +23,21 @@ export const removeElements = (elements, elementsToRemove) => {
   })
 };
 
+let internalNodeId = 0;
+
+const getId = () => internalNodeId++;
+
 export const parseElements = e => {
   e.type = e.type || 'default';
+  e.id = e.id ? e.id : getId();
+
   if (isEdge(e)) {
     return e;
   }
 
   return {
     ...e,
+    id: e.id.toString(),
     __rg: {
       position: e.position,
       width: null,
