@@ -34,7 +34,8 @@ class ReactGraph extends PureComponent {
       onChange,
       elements,
       onElementsRemove,
-      onConnect, onNodeDragStop
+      onConnect, onNodeDragStop, connectionLineType,
+      connectionLineStyle
     } = this.props;
 
     const { nodes, edges } = elements
@@ -43,16 +44,17 @@ class ReactGraph extends PureComponent {
 
     return (
       <div style={style} className="react-graph">
-        <Provider nodes={nodes} edges={edges}>
+        <Provider nodes={nodes} edges={edges} onConnect={onConnect}>
           <GraphView
             onLoad={onLoad}
             onMove={onMove}
             onChange={onChange}
             onElementClick={onElementClick}
-            onConnect={onConnect}
             onNodeDragStop={onNodeDragStop}
             nodeTypes={this.nodeTypes}
             edgeTypes={this.edgeTypes}
+            connectionLineType={connectionLineType}
+            connectionLineStyle={connectionLineStyle}
           />
           <GlobalKeyHandler onElementsRemove={onElementsRemove} />
           {children}
@@ -78,7 +80,9 @@ ReactGraph.defaultProps = {
     edgeTypes: {
       default: BezierEdge,
       straight: StraightEdge
-    }
+    },
+    connectionLineType: 'bezier',
+    connectionLineStyle: {}
   };
   
   export default ReactGraph;
