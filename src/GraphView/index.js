@@ -10,7 +10,7 @@ import UserSelection from '../UserSelection';
 import NodesSelection from '../NodesSelection';
 import {
   updateTransform, updateSize, initD3, fitView,
-  zoomIn, zoomOut, setNodesSelection
+  zoomIn, zoomOut, setNodesSelection, setConnectionPos
 } from '../state/actions';
 import { useKeyPress } from '../hooks';
 

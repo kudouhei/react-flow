@@ -32,7 +32,7 @@ const getHandleBounds = (sel, nodeElement, parentBounds, k) => {
 const onDragOver = evt => {
   evt.preventDefault();
 
-  evt.dataTransfer.dropEffect = "move";
+  evt.dataTransfer.dropEffect = 'move';
 }
 
 export default NodeComponent => memo((props) => {
@@ -104,10 +104,6 @@ export default NodeComponent => memo((props) => {
     evt.preventDefault();
 
     const source = evt.dataTransfer.getData('text/plain');
-
-    if (source === id) {
-      return false;
-    }
 
     onConnect({ source, target: id });
   };

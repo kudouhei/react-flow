@@ -30528,6 +30528,7 @@
   function debounce (delay, atBegin, callback) {
     return callback === undefined ? throttle(delay, atBegin, false) : throttle(delay, callback, atBegin !== false);
   }
+  //# sourceMappingURL=index.esm.js.map
 
   var index_esm = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -34942,8 +34943,14 @@
     };
   };
   var fitView = function fitView() {
+    var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref2$padding = _ref2.padding,
+      padding = _ref2$padding === void 0 ? 0 : _ref2$padding;
     return {
-      type: FIT_VIEW
+      type: FIT_VIEW,
+      payload: {
+        padding: padding
+      }
     };
   };
   var zoomIn = function zoomIn() {
@@ -34964,9 +34971,9 @@
       }
     };
   };
-  var setNodesSelection = function setNodesSelection(_ref2) {
-    var isActive = _ref2.isActive,
-      selection = _ref2.selection;
+  var setNodesSelection = function setNodesSelection(_ref3) {
+    var isActive = _ref3.isActive,
+      selection = _ref3.selection;
     return {
       type: SET_NODES_SELECTION,
       payload: {
@@ -35158,8 +35165,8 @@
     var sourceHandleY = sourceHandle ? sourceHandle.y + sourceHandle.height / 2 : sourceNode.__rg.height;
     var sourceX = sourceNode.__rg.position.x + sourceHandleX;
     var sourceY = sourceNode.__rg.position.y + sourceHandleY;
-    var targetX = props.connectionPosition.x;
-    var targetY = props.connectionPosition.y;
+    var targetX = props.connectionPosition.x * (1 / props.transform[2]) - props.transform[0] * (1 / props.transform[2]);
+    var targetY = props.connectionPosition.y * (1 / props.transform[2]) - props.transform[1] * (1 / props.transform[2]);
     var centerY = targetY < sourceY ? targetY + yOffset : targetY - yOffset;
     var dAttr = "M".concat(sourceX, ",").concat(sourceY, " C").concat(sourceX, ",").concat(centerY, " ").concat(targetX, ",").concat(centerY, " ").concat(targetX, ",").concat(targetY);
     return /*#__PURE__*/React__default.createElement("path", _extends({
@@ -35178,7 +35185,7 @@
     _createClass(EdgeRenderer, [{
       key: "renderEdge",
       value: function renderEdge(e, nodes, onElementClick) {
-        var edgeType = e.type || 'default';
+        var edgeType = e.type || "default";
         var sourceNode = nodes.find(function (n) {
           return n.id === e.source;
         });
@@ -35220,11 +35227,12 @@
             transform: "translate(".concat(state.transform[0], ",").concat(state.transform[1], ") scale(").concat(state.transform[2], ")")
           }, state.edges.map(function (e) {
             return _this.renderEdge(e, state.nodes, onElementClick);
-          })), state.isConnecting && /*#__PURE__*/React__default.createElement(ConnectorEdge, {
+          }), state.isConnecting && /*#__PURE__*/React__default.createElement(ConnectorEdge, {
             nodes: state.nodes,
             connectionSourceId: state.connectionSourceId,
-            connectionPosition: state.connectionPosition
-          }));
+            connectionPosition: state.connectionPosition,
+            transform: state.transform
+          })));
         });
       }
     }]);
@@ -37527,7 +37535,7 @@
   	return Draggable;
 
   })));
-
+  //# sourceMappingURL=react-draggable.js.map
   });
 
   function getStartPositions(elements) {
@@ -37675,7 +37683,7 @@
           nodes: state.nodes,
           edges: state.edges,
           fitView: function fitView$1(opts) {
-            return dispatch(fitView());
+            return dispatch(fitView(opts));
           },
           zoomIn: function zoomIn$1() {
             return dispatch(zoomIn());
@@ -37745,23 +37753,23 @@
   var Provider$1 = NodeIdContext.Provider;
   var Consumer$1 = NodeIdContext.Consumer;
 
-  var _excluded = ["source", "target"];
+  var _excluded = ["source", "target", "className"];
   function _onDragStart(evt, nodeId, dispatch) {
-    evt.dataTransfer.setData("text/plain", nodeId);
+    evt.dataTransfer.setData('text/plain', nodeId);
   }
   function onDragStop(evt, dispatch) {
     // dispatch(setConnecting({ isConnecting: false }));
   }
-  function _onDrag(evt, dispatch) {
-    // dispatch(setConnectionPos({ x: evt.clientX, y: evt.clientY }));
-  }
   var BaseHandle = /*#__PURE__*/React.memo(function (_ref) {
     var source = _ref.source,
       target = _ref.target,
+      _ref$className = _ref.className,
+      className = _ref$className === void 0 ? null : _ref$className,
       rest = _objectWithoutProperties(_ref, _excluded);
+    var nodeId = React.useContext(NodeIdContext);
     var _useContext = React.useContext(GraphContext),
       dispatch = _useContext.dispatch;
-    var handleClasses = classnames('react-graph__handle', rest.className, {
+    var handleClasses = classnames('react-graph__handle', className, {
       source: source,
       target: target
     });
@@ -37770,22 +37778,16 @@
         className: handleClasses
       }, rest));
     }
-    return /*#__PURE__*/React__default.createElement(Consumer$1, null, function (nodeId) {
-      return /*#__PURE__*/React__default.createElement("div", _extends({
-        className: handleClasses
-      }, rest, {
-        draggable: true,
-        onDragStart: function onDragStart(evt) {
-          return _onDragStart(evt, nodeId);
-        },
-        onDrag: function onDrag(evt) {
-          return _onDrag();
-        },
-        onDragEnd: function onDragEnd(evt) {
-          return onDragStop();
-        }
-      }));
-    });
+    return /*#__PURE__*/React__default.createElement("div", _extends({
+      draggable: true,
+      className: handleClasses,
+      onDragStart: function onDragStart(evt) {
+        return _onDragStart(evt, nodeId);
+      },
+      onDragEnd: function onDragEnd(evt) {
+        return onDragStop();
+      }
+    }, rest));
   });
 
   var _TargetHandle = (function (props) {
@@ -37866,7 +37868,7 @@
   };
   var onDragOver = function onDragOver(evt) {
     evt.preventDefault();
-    evt.dataTransfer.dropEffect = "move";
+    evt.dataTransfer.dropEffect = 'move';
   };
   var wrapNode = (function (NodeComponent) {
     return /*#__PURE__*/React.memo(function (props) {
@@ -37964,9 +37966,6 @@
       var onDrop = function onDrop(evt) {
         evt.preventDefault();
         var source = evt.dataTransfer.getData('text/plain');
-        if (source === id) {
-          return false;
-        }
         onConnect({
           source: source,
           target: id

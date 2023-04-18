@@ -1,13 +1,13 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent } from "react";
 
-import { Consumer } from '../GraphContext';
-import ConnectorEdge from '../ConnectorEdge';
+import { Consumer } from "../GraphContext";
+import ConnectorEdge from "../ConnectorEdge";
 
 class EdgeRenderer extends PureComponent {
   renderEdge(e, nodes, onElementClick) {
-    const edgeType = e.type || 'default';
-    const sourceNode = nodes.find(n => n.id === e.source);
-    const targetNode = nodes.find(n => n.id === e.target);
+    const edgeType = e.type || "default";
+    const sourceNode = nodes.find((n) => n.id === e.source);
+    const targetNode = nodes.find((n) => n.id === e.target);
 
     if (!sourceNode) {
       throw new Error(`couldn't create edge for source id: ${e.source}`);
@@ -17,7 +17,8 @@ class EdgeRenderer extends PureComponent {
       throw new Error(`couldn't create edge for target id: ${e.target}`);
     }
 
-    const EdgeComponent = this.props.edgeTypes[edgeType] || this.props.edgeTypes.default;
+    const EdgeComponent =
+      this.props.edgeTypes[edgeType] || this.props.edgeTypes.default;
 
     return (
       <EdgeComponent
@@ -40,23 +41,22 @@ class EdgeRenderer extends PureComponent {
     return (
       <Consumer>
         {({ state }) => (
-          <svg
-            width={width}
-            height={height}
-            className="react-graph__edges"
-          >
+          <svg width={width} height={height} className="react-graph__edges">
             <g
               transform={`translate(${state.transform[0]},${state.transform[1]}) scale(${state.transform[2]})`}
             >
-              {state.edges.map(e => this.renderEdge(e, state.nodes, onElementClick))}
+              {state.edges.map((e) =>
+                this.renderEdge(e, state.nodes, onElementClick)
+              )}
+              {state.isConnecting && (
+                <ConnectorEdge
+                  nodes={state.nodes}
+                  connectionSourceId={state.connectionSourceId}
+                  connectionPosition={state.connectionPosition}
+                  transform={state.transform}
+                />
+              )}
             </g>
-            {state.isConnecting && (
-              <ConnectorEdge 
-                nodes={state.nodes}
-                connectionSourceId={state.connectionSourceId}
-                connectionPosition={state.connectionPosition}
-              />
-            )}
           </svg>
         )}
       </Consumer>
