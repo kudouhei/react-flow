@@ -43,8 +43,8 @@ export const Provider = (props) => {
 
   const graphContext = {
     state,
+    dispatch,
     onConnect,
-    dispatch
   };
 
   return (
