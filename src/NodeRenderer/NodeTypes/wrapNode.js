@@ -8,7 +8,7 @@ import { isNode } from '../../graph-utils';
 import { Provider } from '../NodeIdContext';
 
 const isInput = e => ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.nodeName);
-const isHandle = e => e.target.className && e.target.className.includes && e.target.className.includes('source');
+const isHandle = e => e.target.className && e.target.className.includes && (e.target.className.includes('source') || e.target.className.includes('target'));
 
 const getHandleBounds = (sel, nodeElement, parentBounds, k) => {
   const handle = nodeElement.querySelector(sel);
@@ -29,11 +29,6 @@ const getHandleBounds = (sel, nodeElement, parentBounds, k) => {
   };
 };
 
-const onDragOver = evt => {
-  evt.preventDefault();
-
-  evt.dataTransfer.dropEffect = 'move';
-}
 
 export default NodeComponent => memo((props) => {
   const nodeElement = useRef(null);
@@ -109,7 +104,6 @@ export default NodeComponent => memo((props) => {
       scale={k}
     >
       <div
-        onDragOver={onDragOver}
         className={nodeClasses}
         ref={nodeElement}
         style={{ zIndex: selected ? 10 : 3, transform: `translate(${position.x}px,${position.y}px)` }}
