@@ -35063,8 +35063,8 @@
     });
     var graphContext = {
       state: state,
-      onConnect: onConnect,
-      dispatch: dispatch
+      dispatch: dispatch,
+      onConnect: onConnect
     };
     return /*#__PURE__*/React__default.createElement(GraphContext.Provider, {
       value: graphContext
@@ -35080,47 +35080,43 @@
     edges: []
   };
 
-  var NodeRenderer = /*#__PURE__*/function (_PureComponent) {
-    _inherits(NodeRenderer, _PureComponent);
-    var _super = _createSuper(NodeRenderer);
-    function NodeRenderer() {
-      _classCallCheck(this, NodeRenderer);
-      return _super.apply(this, arguments);
+  function renderNode(d, props, graphContext) {
+    var nodeType = d.type || 'default';
+    if (!props.nodeTypes[nodeType]) {
+      console.warn("No node type found for type \"".concat(nodeType, "\". Using fallback type \"default\"."));
     }
-    _createClass(NodeRenderer, [{
-      key: "renderNode",
-      value: function renderNode(d) {
-        var nodeType = d.type || 'default';
-        if (!this.props.nodeTypes[nodeType]) {
-          console.warn("No node type found for type \"".concat(nodeType, "\". Using fallback type \"default\"."));
-        }
-        var NodeComponent = this.props.nodeTypes[nodeType] || this.props.nodeTypes["default"];
-        return /*#__PURE__*/React__default.createElement(NodeComponent, _extends({
-          key: d.id,
-          onClick: this.props.onElementClick,
-          onNodeDragStop: this.props.onNodeDragStop,
-          onConnect: this.props.onConnect
-        }, d));
+    var NodeComponent = props.nodeTypes[nodeType] || props.nodeTypes["default"];
+    return /*#__PURE__*/React__default.createElement(NodeComponent, {
+      key: d.id,
+      id: d.id,
+      type: d.type,
+      data: d.data,
+      xPos: d.__rg.position.x,
+      yPos: d.__rg.position.y,
+      onClick: props.onElementClick,
+      onNodeDragStop: props.onNodeDragStop,
+      dispatch: graphContext.dispatch,
+      transform: graphContext.state.transform,
+      getNodeById: graphContext.getNodeById,
+      selectedElements: graphContext.state.selectedElements
+    });
+  }
+  var NodeRenderer = /*#__PURE__*/React.memo(function (props) {
+    var graphContext = React.useContext(GraphContext);
+    var _graphContext$state = graphContext.state,
+      transform = _graphContext$state.transform,
+      nodes = _graphContext$state.nodes;
+    return /*#__PURE__*/React__default.createElement("div", {
+      className: "react-graph__nodes",
+      style: {
+        transform: "translate(".concat(transform[0], "px,").concat(transform[1], "px) scale(").concat(transform[2], ")")
       }
-    }, {
-      key: "render",
-      value: function render() {
-        var _this = this;
-        return /*#__PURE__*/React__default.createElement(Consumer, null, function (_ref) {
-          var state = _ref.state;
-          return /*#__PURE__*/React__default.createElement("div", {
-            className: "react-graph__nodes",
-            style: {
-              transform: "translate(".concat(state.transform[0], "px,").concat(state.transform[1], "px) scale(").concat(state.transform[2], ")")
-            }
-          }, state.nodes.map(function (d) {
-            return _this.renderNode(d);
-          }));
-        });
-      }
-    }]);
-    return NodeRenderer;
-  }(React.PureComponent);
+    }, nodes.map(function (d) {
+      return renderNode(d, props, graphContext);
+    }));
+  });
+  NodeRenderer.displayName = 'NodeRenderer';
+  NodeRenderer.whyDidYouRender = false;
 
   var classnames = createCommonjsModule(function (module) {
   /*!
@@ -37984,30 +37980,28 @@
   var onNodeClick = function onNodeClick(evt, _ref3) {
     var onClick = _ref3.onClick,
       dispatch = _ref3.dispatch,
-      data = _ref3.data,
       id = _ref3.id,
       type = _ref3.type,
-      position = _ref3.position;
+      position = _ref3.position,
+      data = _ref3.data;
     if (isInput(evt)) {
       return false;
     }
-    dispatch(setSelectedElements({
-      data: data,
-      id: id
-    }));
-    onClick({
+    var node = {
       id: id,
       type: type,
-      data: data,
-      position: position
-    });
+      position: position,
+      data: data
+    };
+    dispatch(setSelectedElements(node));
+    onClick(node);
   };
   var _onStop = function onStop(_ref4) {
     var onNodeDragStop = _ref4.onNodeDragStop,
       id = _ref4.id,
       type = _ref4.type,
-      data = _ref4.data,
-      position = _ref4.position;
+      position = _ref4.position,
+      data = _ref4.data;
     onNodeDragStop({
       id: id,
       type: type,
@@ -38018,9 +38012,6 @@
   var wrapNode = (function (NodeComponent) {
     return /*#__PURE__*/React.memo(function (props) {
       var nodeElement = React.useRef(null);
-      var _useContext = React.useContext(GraphContext),
-        state = _useContext.state,
-        dispatch = _useContext.dispatch;
       var _useState = React.useState({
           x: 0,
           y: 0
@@ -38028,18 +38019,27 @@
         _useState2 = _slicedToArray(_useState, 2),
         offset = _useState2[0],
         setOffset = _useState2[1];
-      var data = props.data,
-        _onClick = props.onClick,
+      var id = props.id,
         type = props.type,
-        id = props.id,
-        __rg = props.__rg,
+        data = props.data,
+        transform = props.transform,
+        xPos = props.xPos,
+        yPos = props.yPos,
+        selectedElements = props.selectedElements,
+        dispatch = props.dispatch,
+        getNodeById = props.getNodeById,
+        _onClick = props.onClick,
         onNodeDragStop = props.onNodeDragStop;
-      var position = __rg.position;
-      var _state$transform = _slicedToArray(state.transform, 3),
-        x = _state$transform[0],
-        y = _state$transform[1],
-        k = _state$transform[2];
-      var selected = state.selectedElements.filter(isNode).map(function (e) {
+      console.log('render node', id);
+      var position = {
+        x: xPos,
+        y: yPos
+      };
+      var _transform = _slicedToArray(transform, 3),
+        x = _transform[0],
+        y = _transform[1],
+        k = _transform[2];
+      var selected = selectedElements.filter(isNode).map(function (e) {
         return e.id;
       }).includes(id);
       var nodeClasses = classnames('react-graph__node', {
@@ -38047,7 +38047,7 @@
       });
       var nodeStyle = {
         zIndex: selected ? 10 : 3,
-        transform: "translate(".concat(position.x, "px,").concat(position.y, "px)")
+        transform: "translate(".concat(xPos, "px,").concat(yPos, "px)")
       };
       React.useEffect(function () {
         var bounds = nodeElement.current.getBoundingClientRect();
@@ -38067,7 +38067,7 @@
         onStart: function onStart(evt) {
           return _onStart(evt, {
             setOffset: setOffset,
-            transform: state.transform,
+            transform: transform,
             position: position
           });
         },
@@ -38076,7 +38076,7 @@
             dispatch: dispatch,
             id: id,
             offset: offset,
-            transform: state.transform
+            transform: transform
           });
         },
         onStop: function onStop() {
@@ -38084,23 +38084,24 @@
             onNodeDragStop: onNodeDragStop,
             id: id,
             type: type,
-            data: data,
-            position: position
+            position: position,
+            data: data
           });
         },
-        scale: state.transform[2]
+        scale: transform[2]
       }, /*#__PURE__*/React__default.createElement("div", {
         className: nodeClasses,
         ref: nodeElement,
         style: nodeStyle,
         onClick: function onClick(evt) {
           return onNodeClick(evt, {
+            getNodeById: getNodeById,
             onClick: _onClick,
             dispatch: dispatch,
-            data: data,
             id: id,
             type: type,
-            position: position
+            position: position,
+            data: data
           });
         }
       }, /*#__PURE__*/React__default.createElement(Provider$1, {
@@ -38251,6 +38252,10 @@
   var css_248z = ".react-graph {\n  width: 100%;\n  height: 100%;\n  position: relative;\n  overflow: hidden;\n}\n\n.react-graph__renderer {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n}\n\n.react-graph__zoompane {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1;\n}\n\n.react-graph__selectionpane {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 2;\n}\n\n.react-graph__selection {\n  position: absolute;\n  top: 0;\n  left: 0;\n  background: rgba(0, 89, 220, 0.08);\n  border: 1px dotted rgba(0, 89, 220, 0.8);\n}\n\n.react-graph__edges {\n  position: absolute;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n  z-index: 2;\n}\n\n.react-graph__edge {\n  fill: none;\n  stroke: #bbb;\n  stroke-width: 2;\n  pointer-events: all;\n}\n\n.react-graph__edge.selected {\n    stroke: #555;\n  }\n\n.react-graph__edge.animated {\n    stroke-dasharray: 5;\n    animation: dashdraw 0.5s linear infinite;\n  }\n\n.react-graph__edge.connection {\n    stroke: '#ddd';\n    pointer-events: none;\n  }\n\n@keyframes dashdraw {\n  from {stroke-dashoffset: 10}\n}\n\n\n.react-graph__nodes {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  z-index: 3;\n  pointer-events: none;\n  transform-origin: 0 0;\n}\n\n.react-graph__node {\n  position: absolute;\n  color: #222;\n  font-family: sans-serif;\n  font-size: 12px;\n  text-align: center;\n  cursor: grab;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n          user-select: none;\n  pointer-events: all;\n  transform-origin: 0 0;\n}\n\n.react-graph__node:hover > * {\n    box-shadow: 0 1px 5px 2px rgba(0, 0, 0, 0.08);\n  }\n\n.react-graph__node.selected > * {\n    box-shadow: 0 0 0 2px #555;\n  }\n\n.react-graph__handle {\n  position: absolute;\n  width: 10px;\n  height: 8px;\n  background: rgba(255, 255, 255, 0.4);\n}\n\n.react-graph__handle.source {\n    top: auto;\n    left: 50%;\n    bottom: 0;\n    transform: translate(-50%, 0);\n    cursor: crosshair;\n  }\n\n.react-graph__handle.target {\n    left: 50%;\n    top: 0;\n    cursor: crosshair;\n    transform: translate(-50%, 0);\n  }\n\n.react-graph__nodesselection {\n  z-index: 3;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  transform-origin: left top;\n  pointer-events: none;\n}\n\n.react-graph__nodesselection-rect {\n    position: absolute;\n    background: rgba(0, 89, 220, 0.08);\n    border: 1px dotted rgba(0, 89, 220, 0.8);\n    pointer-events: all;\n  }";
   styleInject(css_248z);
 
+  if (process.env.NODE_ENV !== 'production') {
+    var whyDidYouRender = require('@welldone-software/why-did-you-render');
+    whyDidYouRender(React__default);
+  }
   var ReactGraph = /*#__PURE__*/function (_PureComponent) {
     _inherits(ReactGraph, _PureComponent);
     var _super = _createSuper(ReactGraph);
